@@ -58,7 +58,7 @@ def imOpen():
 
 def plotAlong():
     global fileName
-    outputFilename = "output_" + fileName
+    outputFilename = fileName[:-3] + "_output.png"
     coordinate = int(text2.get(1.0, END))
     print(coordinate)
     text3.insert(INSERT, "Ready")
@@ -66,10 +66,13 @@ def plotAlong():
     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     if Position_Type.get() == 1:
         line = img[:, coordinate, 1]
+        img[:, coordinate, 1] = 'red'
     elif Position_Type.get() == 0:
         line = img[coordinate, :, 1]
+        img[coordinate, :, 2] = 255
     cv2.imshow(outputFilename, img)
     plt.plot(line)
+    plt.savefig(outputFilename)
     # plt.colorbar()
     plt.show()
     return
