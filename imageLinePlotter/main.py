@@ -32,18 +32,25 @@ def print_hi(name):
 
 
 def selectOutputDir():
+    text1.delete(1.0, END)
     outputDir = filedialog.askdirectory(parent=window)
-    outputFile = outputDir + '/outputCSV.csv'
-    print(outputFile)
     text1.insert(INSERT, outputDir)
-    print(text2.get(Text))
 
 
 def imOpen():
-    text1.insert(INSERT, "fileDir is:")
     text3.delete(1.0, END)
-    global chosen_port, lastOpenedPort
-
+    text0.delete(1.0, END)
+    fileName = askopenfilenames(parent=window)
+    text0.insert(INSERT, fileName)
+    fileName = format(text0.get("1.0", 'end-1c'))
+    img = cv2.imread(fileName, cv2.IMREAD_GRAYSCALE)
+    plt.imshow(img)
+    plt.colorbar()
+    plt.show()
+    # fileName = fileName[:-3]
+    # plt.savefig(fileName + 'png')
+    # plt.show()
+    # outputFile = format(text3.get("1.0", 'end-1c'))
     return
 
 def plotAlong():
