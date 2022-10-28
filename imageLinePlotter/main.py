@@ -26,6 +26,8 @@ from scipy.signal import find_peaks
 # import pyserial
 from serial.tools import list_ports
 
+fileName = ""
+
 def print_hi(name):
     # Use a breakpoint in the code line below to debug your script.
     print(f'Bye, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
@@ -38,6 +40,7 @@ def selectOutputDir():
 
 
 def imOpen():
+    global fileName
     text3.delete(1.0, END)
     text0.delete(1.0, END)
     fileName = askopenfilenames(parent=window)
@@ -54,11 +57,20 @@ def imOpen():
     return
 
 def plotAlong():
-    coordinate = int(text2.get())
+    global fileName
+    outputFilename = "output_" + fileName
+    coordinate = int(text2.get(1.0, END))
+    print(coordinate)
     text3.insert(INSERT, "Ready")
-    img = cv2.imread(fileName, cv2.IMREAD_GRAYSCALE)
-    plt.imshow(img)
-    plt.colorbar()
+    img = cv2.imread(fileName)
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    if Position_Type.get() == 1:
+        line = img[:, coordinate, 1]
+    elif Position_Type.get() == 0:
+        line = img[coordinate, :, 1]
+    cv2.imshow(outputFilename, img)
+    plt.plot(line)
+    # plt.colorbar()
     plt.show()
     return
 
