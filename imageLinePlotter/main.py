@@ -54,9 +54,12 @@ def imOpen():
     return
 
 def plotAlong():
-    global chosen_port, lastOpenedPort
+    coordinate = int(text2.get())
     text3.insert(INSERT, "Ready")
-
+    img = cv2.imread(fileName, cv2.IMREAD_GRAYSCALE)
+    plt.imshow(img)
+    plt.colorbar()
+    plt.show()
     return
 
 
@@ -92,13 +95,13 @@ if __name__ == '__main__':
     btn2 = Button(window, text="Plot along!", command=plotAlong)
     btn2.grid(column=6, row=0, sticky=W)
 
-    # rb0 = Radiobutton(text="Y_line", value="Y_line", variable=Position_Type)
-    # rb1 = Radiobutton(text="X_line", value="X_line", variable=Position_Type)
+    Position_Type = BooleanVar()
+    rb0 = Radiobutton(text="Y_line", variable=Position_Type, value=0)
+    rb0.grid(column=2, row=0, sticky=W)
+    rb1 = Radiobutton(text="X_line", variable=Position_Type, value=1)
+    rb1.grid(column=2, row=1, sticky=W)
 
     window.mainloop()
     print_hi('PyCharm')
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
-
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
