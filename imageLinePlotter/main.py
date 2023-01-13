@@ -10,21 +10,8 @@ from tkinter import filedialog
 from tkinter.filedialog import *
 
 import cv2
-import keyboard as keyboard
-import numpy as np
-import serial
+
 from matplotlib import pyplot as plt
-import csv
-import xlwt
-from xlsxwriter import Workbook
-from matplotlib import pyplot as plt
-import os
-import pandas as pd
-import io
-import time
-from scipy.signal import find_peaks
-# import pyserial
-from serial.tools import list_ports
 
 fileName = ""
 
@@ -65,11 +52,29 @@ def plotAlong():
     img = cv2.imread(fileName)
     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     if Position_Type.get() == 1:
-        line = img[:, coordinate, 1]
-        img[:, coordinate, 1] = 'red'
+        if Color_channel.get() == 0:
+            line = img[:, coordinate, 0]
+            img[:, coordinate, 2] = '255'
+        elif Color_channel.get() == 1:
+            line = img[:, coordinate, 1]
+            img[:, coordinate, 2] = '255'
+        elif Color_channel.get() == 2:
+            img = cv2.imread(fileName, cv2.IMREAD_GRAYSCALE)
+            line = img[:, coordinate]
+            img[:, coordinate, 1] = '255'
+
     elif Position_Type.get() == 0:
-        line = img[coordinate, :, 1]
-        img[coordinate, :, 2] = 255
+        if Color_channel.get() == 0:
+            line = img[coordinate, :, 0]
+            img[coordinate, :, 2] = '255'
+        elif Color_channel.get() == 1:
+            line = img[coordinate, :, 1]
+            img[coordinate, :, 2] = '255'
+        elif Color_channel.get() == 2:
+            img = cv2.imread(fileName, cv2.IMREAD_GRAYSCALE)
+            line = img[:, coordinate]
+            img[:, coordinate, 1] = '255'
+
     cv2.imshow(outputFilename, img)
     plt.plot(line)
     plt.savefig(outputFilename)
@@ -115,6 +120,14 @@ if __name__ == '__main__':
     rb0.grid(column=2, row=0, sticky=W)
     rb1 = Radiobutton(text="X_line", variable=Position_Type, value=1)
     rb1.grid(column=2, row=1, sticky=W)
+
+    Color_channel = BooleanVar()
+    rb2 = Radiobutton(text="Red Channel", variable=Color_channel, value=0)
+    rb2.grid(column=4, row=1, sticky=W)
+    rb3 = Radiobutton(text="Green Channel", variable=Color_channel, value=1)
+    rb3.grid(column=5, row=1, sticky=W)
+    rb4 = Radiobutton(text="BW image", variable=Color_channel, value=2)
+    rb4.grid(column=6, row=1, sticky=W)
 
     window.mainloop()
     print_hi('PyCharm')
