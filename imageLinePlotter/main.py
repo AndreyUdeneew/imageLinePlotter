@@ -43,6 +43,23 @@ def imOpen():
     # outputFile = format(text3.get("1.0", 'end-1c'))
     return
 
+def WhiteFieldOpen():
+    global fileName
+    text3.delete(1.0, END)
+    text0.delete(1.0, END)
+    fileName = askopenfilenames(parent=window)
+    text4.insert(INSERT, fileName)
+    fileName = format(text0.get("1.0", 'end-1c'))
+    img = cv2.imread(fileName, cv2.IMREAD_GRAYSCALE)
+    plt.imshow(img)
+    plt.colorbar()
+    plt.show()
+    # fileName = fileName[:-3]
+    # plt.savefig(fileName + 'png')
+    # plt.show()
+    # outputFile = format(text3.get("1.0", 'end-1c'))
+    return
+
 def plotAlong():
     global fileName
     outputFilename = fileName[:-3] + "_output.png"
@@ -50,43 +67,48 @@ def plotAlong():
     print(coordinate)
     text3.insert(INSERT, "Ready")
     img = cv2.imread(fileName)
-    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-    if Position_Type.get() == 1:
-        if Color_channel.get() == 0:
-            line = img[:, coordinate, 0]
-            img[:, coordinate, 2] = '255'
-        elif Color_channel.get() == 1:
+
+    if Position_Type.get() == 1:            # Vertical line
+        if Color_channel.get() == 0:        # Red channel intended
+            line = img[:, coordinate, 2]
+            # img[:, coordinate, 2] = '255'
+        elif Color_channel.get() == 1:      # Green channel intended
             line = img[:, coordinate, 1]
-            img[:, coordinate, 2] = '255'
-        elif Color_channel.get() == 2:
+            # img[:, coordinate, 2] = '255'
+        elif Color_channel.get() == 2:      # Grayscale intended
             img = cv2.imread(fileName, cv2.IMREAD_GRAYSCALE)
             line = img[:, coordinate]
-            img[:, coordinate, 1] = '255'
+            # img[:, coordinate, 2] = '255'
 
-    elif Position_Type.get() == 0:
-        if Color_channel.get() == 0:
-            line = img[coordinate, :, 0]
-            img[coordinate, :, 2] = '255'
-        elif Color_channel.get() == 1:
+    elif Position_Type.get() == 0:          # Horizontal line
+        if Color_channel.get() == 0:        # Red channel intended
+            line = img[coordinate, :, 2]
+            # img[coordinate, :, 2] = '255'
+        elif Color_channel.get() == 1:      # Green channel intended
             line = img[coordinate, :, 1]
-            img[coordinate, :, 2] = '255'
-        elif Color_channel.get() == 2:
+            # img[coordinate, :, 2] = '255'
+        elif Color_channel.get() == 2:      # Grayscale intended
             img = cv2.imread(fileName, cv2.IMREAD_GRAYSCALE)
             line = img[:, coordinate]
-            img[:, coordinate, 1] = '255'
+            # img[:, coordinate, 2] = '255'
 
-    cv2.imshow(outputFilename, img)
     plt.plot(line)
     plt.savefig(outputFilename)
-    # plt.colorbar()
     plt.show()
+    if Position_Type.get() == 1:            # Vertical line
+        img[:, coordinate, 2] = '255'
+    elif Position_Type.get() == 0:          # Horizontal line
+        img[coordinate, :, 2] = '255'
+    cv2.imshow(outputFilename, img)
+    imageName = fileName[:-3] + "_demo.png"
+    cv2.imwrite(imageName, img)
     return
 
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     window = Tk()
-    window.geometry('1100x55')
+    window.geometry('1100x85')
     window.title("imageLinePlotter")
 
     # lbl0 = Label(window, text="Выбор директории выходного файла")
@@ -106,6 +128,8 @@ if __name__ == '__main__':
     text2.grid(column=5, row=0, sticky=W)
     text3 = Text(width=6, height=1)
     text3.grid(column=7, row=0, sticky=W)
+    text4 = Text(width=70, height=1)
+    text4.grid(column=1, row=2, sticky=W)
     # text0.pack()
 
     btn0 = Button(window, text="Open Image", command=imOpen)
@@ -114,6 +138,8 @@ if __name__ == '__main__':
     btn1.grid(column=0, row=1, sticky=W)
     btn2 = Button(window, text="Plot along!", command=plotAlong)
     btn2.grid(column=6, row=0, sticky=W)
+    btn3 = Button(window, text="White Field", command=WhiteFieldOpen)
+    btn3.grid(column=0, row=2, sticky=W)
 
     Position_Type = BooleanVar()
     rb0 = Radiobutton(text="Y_line", variable=Position_Type, value=0)
