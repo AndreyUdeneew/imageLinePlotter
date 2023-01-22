@@ -12,8 +12,26 @@ from tkinter.filedialog import *
 import cv2
 
 from matplotlib import pyplot as plt
+import numpy as np
 
 fileName = ""
+fileNameBG = ""
+fileNameBase = ""
+
+
+def imadjust(x, a, b, c, d, gamma=1):
+    # Similar to imadjust in MATLAB.
+    # Converts an image range from [a,b] to [c,d].
+    # The Equation of a line can be used for this transformation:
+    #   y=((d-c)/(b-a))*(x-a)+c
+    # However, it is better to use a more generalized equation:
+    #   y=((x-a)/(b-a))^gamma*(d-c)+c
+    # If gamma is equal to 1, then the line equation is used.
+    # When gamma is not equal to 1, then the transformation is not linear.
+
+    y = (((x - a) / (b - a)) ** gamma) * (d - c) + c
+    return y
+
 
 def print_hi(name):
     # Use a breakpoint in the code line below to debug your script.
@@ -21,38 +39,60 @@ def print_hi(name):
 
 
 def selectOutputDir():
-    text1.delete(1.0, END)
+    text4.delete(1.0, END)
     outputDir = filedialog.askdirectory(parent=window)
-    text1.insert(INSERT, outputDir)
+    text4.insert(INSERT, outputDir)
 
 
 def imOpen():
-    global fileName
-    text3.delete(1.0, END)
-    text0.delete(1.0, END)
+    global fileName, fileNameBase, fileNameBG, imBase, im, imBG, BG_normalized
+    text6.delete(1.0, END)
+    text1.delete(1.0, END)
     fileName = askopenfilenames(parent=window)
-    text0.insert(INSERT, fileName)
-    fileName = format(text0.get("1.0", 'end-1c'))
-    img = cv2.imread(fileName, cv2.IMREAD_GRAYSCALE)
-    plt.imshow(img)
-    plt.colorbar()
+    text1.insert(INSERT, fileName)
+    fileName = format(text1.get("1.0", 'end-1c'))
+    im = cv2.imread(fileName)
+    im = cv2.cvtColor(im, cv2.COLOR_BGR2RGB)
+    print(type(im))
+    plt.imshow(im)
+    # plt.colorbar()
     plt.show()
     # fileName = fileName[:-3]
     # plt.savefig(fileName + 'png')
     # plt.show()
     # outputFile = format(text3.get("1.0", 'end-1c'))
     return
+
+
+def BackgroundOpen():
+    global fileName, fileNameBase, fileNameBG, imBase, im, imBG, BG_normalized
+    text6.delete(1.0, END)
+    text2.delete(1.0, END)
+    fileNameBG = askopenfilenames(parent=window)
+    text2.insert(INSERT, fileNameBG)
+    fileNameBG = format(text2.get("1.0", 'end-1c'))
+    imBG = cv2.imread(fileNameBG)
+    imBG = cv2.cvtColor(imBG, cv2.COLOR_BGR2RGB)
+    plt.imshow(imBG)
+    # plt.colorbar()
+    plt.show()
+    # fileName = fileName[:-3]
+    # plt.savefig(fileName + 'png')
+    # plt.show()
+    # outputFile = format(text3.get("1.0", 'end-1c'))
+
 
 def WhiteFieldOpen():
-    global fileName
+    global fileName, fileNameBase, fileNameBG, imBase, im, imBG, BG_normalized
+    text6.delete(1.0, END)
     text3.delete(1.0, END)
-    text0.delete(1.0, END)
-    fileName = askopenfilenames(parent=window)
-    text4.insert(INSERT, fileName)
-    fileName = format(text0.get("1.0", 'end-1c'))
-    img = cv2.imread(fileName, cv2.IMREAD_GRAYSCALE)
-    plt.imshow(img)
-    plt.colorbar()
+    fileNameBase = askopenfilenames(parent=window)
+    text3.insert(INSERT, fileNameBase)
+    fileNameBase = format(text3.get("1.0", 'end-1c'))
+    imBase = cv2.imread(fileNameBase)
+    imBase = cv2.cvtColor(imBase, cv2.COLOR_BGR2RGB)
+    plt.imshow(imBase)
+    # plt.colorbar()
     plt.show()
     # fileName = fileName[:-3]
     # plt.savefig(fileName + 'png')
@@ -60,55 +100,180 @@ def WhiteFieldOpen():
     # outputFile = format(text3.get("1.0", 'end-1c'))
     return
 
-def plotAlong():
-    global fileName
+
+def plotEasy():
+    global fileName, fileNameBase, fileNameBG, imBase, im, imBG, BG_normalized
     outputFilename = fileName[:-3] + "_output.png"
-    coordinate = int(text2.get(1.0, END))
-    print(coordinate)
-    text3.insert(INSERT, "Ready")
-    img = cv2.imread(fileName)
+    coordinate = int(text5.get(1.0, END))
+    text6.insert(INSERT, "Ready")
+    im = cv2.imread(fileName)
+    im = cv2.cvtColor(im, cv2.COLOR_BGR2RGB)
+    print(type(im))
 
-    if Position_Type.get() == 1:            # Vertical line
-        if Color_channel.get() == 0:        # Red channel intended
-            line = img[:, coordinate, 2]
-            # img[:, coordinate, 2] = '255'
-        elif Color_channel.get() == 1:      # Green channel intended
-            line = img[:, coordinate, 1]
-            # img[:, coordinate, 2] = '255'
-        elif Color_channel.get() == 2:      # Grayscale intended
-            img = cv2.imread(fileName, cv2.IMREAD_GRAYSCALE)
-            line = img[:, coordinate]
-            # img[:, coordinate, 2] = '255'
+    if Position_Type.get() == 1:  # Vertical line
+        if Color_channel.get() == 0:  # Red channel intended
+            line = im[:, coordinate, 2]
+        elif Color_channel.get() == 1:  # Green channel intended
+            line = im[:, coordinate, 1]
+        elif Color_channel.get() == 2:  # Grayscale intended
+            im = cv2.imread(fileName, cv2.IMREAD_GRAYSCALE)
+            line = im[:, coordinate]
 
-    elif Position_Type.get() == 0:          # Horizontal line
-        if Color_channel.get() == 0:        # Red channel intended
-            line = img[coordinate, :, 2]
-            # img[coordinate, :, 2] = '255'
-        elif Color_channel.get() == 1:      # Green channel intended
-            line = img[coordinate, :, 1]
-            # img[coordinate, :, 2] = '255'
-        elif Color_channel.get() == 2:      # Grayscale intended
-            img = cv2.imread(fileName, cv2.IMREAD_GRAYSCALE)
-            line = img[:, coordinate]
-            # img[:, coordinate, 2] = '255'
+    elif Position_Type.get() == 0:  # Horizontal line
+        if Color_channel.get() == 0:  # Red channel intended
+            line = im[coordinate, :, 0]
+        elif Color_channel.get() == 1:  # Green channel intended
+            line = im[coordinate, :, 1]
+        elif Color_channel.get() == 2:  # Grayscale intended
+            im = cv2.imread(fileName, cv2.IMREAD_GRAYSCALE)
+            line = im[:, coordinate]
 
     plt.plot(line)
     plt.savefig(outputFilename)
     plt.show()
-    if Position_Type.get() == 1:            # Vertical line
-        img[:, coordinate, 2] = '255'
-    elif Position_Type.get() == 0:          # Horizontal line
-        img[coordinate, :, 2] = '255'
-    cv2.imshow(outputFilename, img)
+    im = cv2.cvtColor(im, cv2.COLOR_BGR2RGB)
+    if Position_Type.get() == 1:  # Vertical line
+        im[:, coordinate, 2] = '255'
+    elif Position_Type.get() == 0:  # Horizontal line
+        im[coordinate, :, 2] = '255'
+    cv2.imshow(outputFilename, im)
     imageName = fileName[:-3] + "_demo.png"
-    cv2.imwrite(imageName, img)
+    cv2.imwrite(imageName, im)
+    return
+
+
+def plot_normalized_adjusted_4_overlay():
+    global fileName, fileNameBase, fileNameBG, imBase, im, imBG, BG_normalized
+    outputFilename = fileName[:-3] + "_output.png"
+    coordinate = int(text5.get(1.0, END))
+    print(coordinate)
+    text6.insert(INSERT, "Ready")
+
+    imNormalized = im / imBase
+    # imNormalized = np.asarray(imNormalized)
+    # imNormalized = imadjust(imNormalized, imNormalized.min(), imNormalized.max(), 0, 255)
+    BG_normalized = imBG / imBase
+    # place 4 adjustment
+    imOut = imNormalized - BG_normalized
+
+    if Position_Type.get() == 1:  # Vertical line
+        if Color_channel.get() == 0:  # Red channel intended
+            lineOut = imOut[:, coordinate, 0] + BG_normalized[:, coordinate, 1]
+        elif Color_channel.get() == 1:  # Green channel intended
+            lineOut = imOut[:, coordinate, 1] + BG_normalized[:, coordinate, 1]
+        elif Color_channel.get() == 2:  # Grayscale intended
+            lineOut = imOut[:, coordinate] + BG_normalized[:, coordinate]
+
+    elif Position_Type.get() == 0:  # Horizontal line
+        if Color_channel.get() == 0:  # Red channel intended
+            lineOut = imOut[coordinate, :, 0] + BG_normalized[coordinate, :, 1]
+        elif Color_channel.get() == 1:  # Green channel intended
+            lineOut = imOut[coordinate, :, 1] + BG_normalized[coordinate, :, 1]
+        elif Color_channel.get() == 2:  # Grayscale intended
+            imOut = cv2.imread(fileName, cv2.IMREAD_GRAYSCALE)
+            lineOut = imOut[coordinate, :] + BG_normalized[coordinate, :]
+
+    plt.plot(lineOut)
+    plt.savefig(outputFilename)
+    plt.show()
+    if Position_Type.get() == 1:  # Vertical line
+        im[:, coordinate, 0] = '255'
+    elif Position_Type.get() == 0:  # Horizontal line
+        im[coordinate, :, 0] = '255'
+    im = cv2.cvtColor(im, cv2.COLOR_BGR2RGB)
+    cv2.imshow(outputFilename, im)
+    imageName = fileName[:-3] + "_demo.png"
+    cv2.imwrite(imageName, im)
+    return
+
+def plot_normalized_adjusted():
+    global fileName, fileNameBase, fileNameBG, imBase, im, imBG, BG_normalized
+    outputFilename = fileName[:-3] + "_output.png"
+    coordinate = int(text5.get(1.0, END))
+    print(coordinate)
+    text6.insert(INSERT, "Ready")
+
+    imNormalized = im / imBase
+    # place 4 adjustment
+    BG_normalized = imBG / imBase
+    # place 4 adjustment
+    imOut = imNormalized - BG_normalized
+
+    if Position_Type.get() == 1:  # Vertical line
+        if Color_channel.get() == 0:  # Red channel intended
+            lineOut = imOut[:, coordinate, 0]
+        elif Color_channel.get() == 1:  # Green channel intended
+            lineOut = imOut[:, coordinate, 1]
+        elif Color_channel.get() == 2:  # Grayscale intended
+            lineOut = imOut[:, coordinate]
+
+    elif Position_Type.get() == 0:  # Horizontal line
+        if Color_channel.get() == 0:  # Red channel intended
+            lineOut = imOut[coordinate, :, 0]
+        elif Color_channel.get() == 1:  # Green channel intended
+            lineOut = imOut[coordinate, :, 1]
+        elif Color_channel.get() == 2:  # Grayscale intended
+            imOut = cv2.imread(fileName, cv2.IMREAD_GRAYSCALE)
+            lineOut = imOut[coordinate, :]
+
+    plt.plot(lineOut)
+    plt.savefig(outputFilename)
+    plt.show()
+    if Position_Type.get() == 1:  # Vertical line
+        im[:, coordinate, 0] = '255'
+    elif Position_Type.get() == 0:  # Horizontal line
+        im[coordinate, :, 0] = '255'
+    im = cv2.cvtColor(im, cv2.COLOR_BGR2RGB)
+    cv2.imshow(outputFilename, im)
+    imageName = fileName[:-3] + "_demo.png"
+    cv2.imwrite(imageName, im)
+    return
+
+
+def plot_like_Eimar():
+    global fileName, fileNameBase, fileNameBG, imBase, im, imBG, BG_normalized
+    outputFilename = fileName[:-3] + "_output.png"
+    coordinate = int(text5.get(1.0, END))
+    print(coordinate)
+    text6.insert(INSERT, "Ready")
+
+    imOut = im - imBG
+
+    if Position_Type.get() == 1:  # Vertical line
+        if Color_channel.get() == 0:  # Red channel intended
+            lineOut = imOut[:, coordinate, 0] + imBG[:, coordinate, 1]
+        elif Color_channel.get() == 1:  # Green channel intended
+            lineOut = imOut[:, coordinate, 1] + imBG[:, coordinate, 1]
+        elif Color_channel.get() == 2:  # Grayscale intended
+            lineOut = imOut[:, coordinate] + imBG[:, coordinate, 1]
+
+    elif Position_Type.get() == 0:  # Horizontal line
+        if Color_channel.get() == 0:  # Red channel intended
+            lineOut = imOut[coordinate, :, 0] + imBG[coordinate, :, 1]
+        elif Color_channel.get() == 1:  # Green channel intended
+            lineOut = imOut[coordinate, :, 1] + imBG[coordinate, :, 1]
+        elif Color_channel.get() == 2:  # Grayscale intended
+            imOut = cv2.imread(fileName, cv2.IMREAD_GRAYSCALE)
+            lineOut = imOut[coordinate, :] + imBG[coordinate, :, 1]
+
+    plt.plot(lineOut)
+    plt.savefig(outputFilename)
+    plt.show()
+    if Position_Type.get() == 1:  # Vertical line
+        im[:, coordinate, 0] = '255'
+    elif Position_Type.get() == 0:  # Horizontal line
+        im[coordinate, :, 0] = '255'
+    im = cv2.cvtColor(im, cv2.COLOR_BGR2RGB)
+    cv2.imshow(outputFilename, im)
+    imageName = fileName[:-3] + "_demo.png"
+    cv2.imwrite(imageName, im)
     return
 
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     window = Tk()
-    window.geometry('1100x85')
+    window.geometry('1350x130')
     window.title("imageLinePlotter")
 
     # lbl0 = Label(window, text="Выбор директории выходного файла")
@@ -120,26 +285,42 @@ if __name__ == '__main__':
     lbl3 = Label(window, text="Coordinate")
     lbl3.grid(column=4, row=0)
 
-    text0 = Text(width=70, height=1)
-    text0.grid(column=1, row=0, sticky=W)
-    text1 = Text(width=70, height=1)
-    text1.grid(column=1, row=1, sticky=W)
-    text2 = Text(width=6, height=1)
-    text2.grid(column=5, row=0, sticky=W)
-    text3 = Text(width=6, height=1)
-    text3.grid(column=7, row=0, sticky=W)
-    text4 = Text(width=70, height=1)
-    text4.grid(column=1, row=2, sticky=W)
+    text1 = Text(width=70, height=1)  # image
+    text1.grid(column=1, row=0, sticky=W)
+    text2 = Text(width=70, height=1)  # Background
+    text2.grid(column=1, row=1, sticky=W)
+    text3 = Text(width=70, height=1)  # Base (white field)
+    text3.grid(column=1, row=2, sticky=W)
+    text4 = Text(width=70, height=1)  # Output DIR
+    text4.grid(column=1, row=3, sticky=W)
+    text5 = Text(width=6, height=1)  # Coordinate
+    text5.grid(column=5, row=0, sticky=W)
+    text6 = Text(width=6, height=1)
+    text6.grid(column=7, row=0, sticky=W)  # Status
+
     # text0.pack()
 
-    btn0 = Button(window, text="Open Image", command=imOpen)
-    btn0.grid(column=0, row=0, sticky=W)
-    btn1 = Button(window, text="Output Dir ", command=selectOutputDir)
-    btn1.grid(column=0, row=1, sticky=W)
-    btn2 = Button(window, text="Plot along!", command=plotAlong)
-    btn2.grid(column=6, row=0, sticky=W)
-    btn3 = Button(window, text="White Field", command=WhiteFieldOpen)
+    btn1 = Button(window, text="Select Image", command=imOpen)
+    btn1.grid(column=0, row=0, sticky=W)
+    btn2 = Button(window, text="Select BG", command=BackgroundOpen)
+    btn2.grid(column=0, row=1, sticky=W)
+    btn3 = Button(window, text="Select Base", command=WhiteFieldOpen)
     btn3.grid(column=0, row=2, sticky=W)
+    btn4 = Button(window, text="Output Dir ", command=selectOutputDir)
+    btn4.grid(column=0, row=3, sticky=W)
+
+
+
+    btn5 = Button(window, text="Plot easy!", command=plotEasy)
+    btn5.grid(column=6, row=0, sticky=W)
+    btn6 = Button(window, text="[(im/base)adjusted - (BG/base)adjusted] + (BG/base)adjusted",
+                  command=plot_normalized_adjusted_4_overlay)
+    btn6.grid(column=2, row=2, sticky=W)
+    btn7 = Button(window, text="(im - BG) + (BG)green", command=plot_like_Eimar)
+    btn7.grid(column=2, row=3, sticky=W)
+    btn8 = Button(window, text="[(im/base)adjusted - (BG/base)adjusted]adjusted",
+                  command=plot_normalized_adjusted)
+    btn8.grid(column=2, row=4, sticky=W)
 
     Position_Type = BooleanVar()
     rb0 = Radiobutton(text="Y_line", variable=Position_Type, value=0)
