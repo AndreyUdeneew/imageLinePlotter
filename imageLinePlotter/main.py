@@ -17,6 +17,7 @@ import numpy as np
 fileName = ""
 fileNameBG = ""
 fileNameBase = ""
+fileNameBaseBG = ""
 
 
 def imadjust(x, a, b, c, d, gamma=1):
@@ -45,7 +46,7 @@ def selectOutputDir():
 
 
 def imOpen():
-    global fileName, fileNameBase, fileNameBG, imBase, im, imBG, BG_normalized
+    global fileName, fileNameBase, fileNameBaseBG, fileNameBG, imBase, im, imBG, BG_normalized, imBaseBG
     text6.delete(1.0, END)
     text1.delete(1.0, END)
     fileName = askopenfilenames(parent=window)
@@ -55,6 +56,7 @@ def imOpen():
     im = cv2.cvtColor(im, cv2.COLOR_BGR2RGB)
     print(type(im))
     plt.imshow(im)
+    plt.title('im')
     # plt.colorbar()
     plt.show()
     # fileName = fileName[:-3]
@@ -65,7 +67,7 @@ def imOpen():
 
 
 def BackgroundOpen():
-    global fileName, fileNameBase, fileNameBG, imBase, im, imBG, BG_normalized
+    global fileName, fileNameBase, fileNameBaseBG, fileNameBG, imBase, im, imBG, BG_normalized, imBaseBG
     text6.delete(1.0, END)
     text2.delete(1.0, END)
     fileNameBG = askopenfilenames(parent=window)
@@ -74,6 +76,7 @@ def BackgroundOpen():
     imBG = cv2.imread(fileNameBG)
     imBG = cv2.cvtColor(imBG, cv2.COLOR_BGR2RGB)
     plt.imshow(imBG)
+    plt.title('imBG')
     # plt.colorbar()
     plt.show()
     # fileName = fileName[:-3]
@@ -83,7 +86,7 @@ def BackgroundOpen():
 
 
 def WhiteFieldOpen():
-    global fileName, fileNameBase, fileNameBG, imBase, im, imBG, BG_normalized
+    global fileName, fileNameBase, fileNameBaseBG, fileNameBG, imBase, im, imBG, BG_normalized, imBaseBG
     text6.delete(1.0, END)
     text3.delete(1.0, END)
     fileNameBase = askopenfilenames(parent=window)
@@ -92,6 +95,26 @@ def WhiteFieldOpen():
     imBase = cv2.imread(fileNameBase)
     imBase = cv2.cvtColor(imBase, cv2.COLOR_BGR2RGB)
     plt.imshow(imBase)
+    plt.title('imBase')
+    # plt.colorbar()
+    plt.show()
+    # fileName = fileName[:-3]
+    # plt.savefig(fileName + 'png')
+    # plt.show()
+    # outputFile = format(text3.get("1.0", 'end-1c'))
+    return
+
+def WhiteFieldOpen_BG():
+    global fileName, fileNameBase, fileNameBaseBG, fileNameBG, imBase, im, imBG, BG_normalized, imBaseBG
+    text6.delete(1.0, END)
+    text7.delete(1.0, END)
+    fileNameBaseBG = askopenfilenames(parent=window)
+    text7.insert(INSERT, fileNameBaseBG)
+    fileNameBaseBG = format(text7.get("1.0", 'end-1c'))
+    imBaseBG = cv2.imread(fileNameBaseBG)
+    imBaseBG = cv2.cvtColor(imBaseBG, cv2.COLOR_BGR2RGB)
+    plt.imshow(imBaseBG)
+    plt.title('imBaseBG')
     # plt.colorbar()
     plt.show()
     # fileName = fileName[:-3]
@@ -102,7 +125,7 @@ def WhiteFieldOpen():
 
 
 def plotEasy():
-    global fileName, fileNameBase, fileNameBG, imBase, im, imBG, BG_normalized
+    global fileName, fileNameBase, fileNameBaseBG, fileNameBG, imBase, im, imBG, BG_normalized, imBaseBG
     outputFilename = fileName[:-3] + "_output.png"
     coordinate = int(text5.get(1.0, END))
     text6.insert(INSERT, "Ready")
@@ -129,6 +152,9 @@ def plotEasy():
             line = im[:, coordinate]
 
     plt.plot(line)
+    plt.xlabel('Pixels')
+    plt.ylabel('Pixels values')
+    plt.title('Pixels values along the line')
     plt.savefig(outputFilename)
     plt.show()
     im = cv2.cvtColor(im, cv2.COLOR_BGR2RGB)
@@ -143,7 +169,7 @@ def plotEasy():
 
 
 def plot_normalized_adjusted_4_overlay():
-    global fileName, fileNameBase, fileNameBG, imBase, im, imBG, BG_normalized
+    global fileName, fileNameBase, fileNameBaseBG, fileNameBG, imBase, im, imBG, BG_normalized, imBaseBG
     outputFilename = fileName[:-3] + "_output.png"
     coordinate = int(text5.get(1.0, END))
     print(coordinate)
@@ -151,8 +177,11 @@ def plot_normalized_adjusted_4_overlay():
 
     imNormalized = im / imBase
     # imNormalized = np.asarray(imNormalized)
-    # imNormalized = imadjust(imNormalized, imNormalized.min(), imNormalized.max(), 0, 255)
-    BG_normalized = imBG / imBase
+    # imNormalized = imadjust(imNormalized, imNormalized.min(), imNormalized.max(), 0, 1)
+    # cv2.imshow(outputFilename, imNormalized)
+    # print(type(imNormalized))
+    BG_normalized = imBG / imBaseBG
+    # BG_normalized = imBG
     # place 4 adjustment
     imOut = imNormalized - BG_normalized
 
@@ -173,7 +202,11 @@ def plot_normalized_adjusted_4_overlay():
             imOut = cv2.imread(fileName, cv2.IMREAD_GRAYSCALE)
             lineOut = imOut[coordinate, :] + BG_normalized[coordinate, :]
 
+    lineOut = imadjust(lineOut, lineOut.min(), lineOut.max(), 0, 255)
     plt.plot(lineOut)
+    plt.xlabel('Pixels')
+    plt.ylabel('Pixels values')
+    plt.title('Pixels values along the line')
     plt.savefig(outputFilename)
     plt.show()
     if Position_Type.get() == 1:  # Vertical line
@@ -187,7 +220,7 @@ def plot_normalized_adjusted_4_overlay():
     return
 
 def plot_normalized_adjusted():
-    global fileName, fileNameBase, fileNameBG, imBase, im, imBG, BG_normalized
+    global fileName, fileNameBase, fileNameBaseBG, fileNameBG, imBase, im, imBG, BG_normalized, imBaseBG
     outputFilename = fileName[:-3] + "_output.png"
     coordinate = int(text5.get(1.0, END))
     print(coordinate)
@@ -195,7 +228,8 @@ def plot_normalized_adjusted():
 
     imNormalized = im / imBase
     # place 4 adjustment
-    BG_normalized = imBG / imBase
+    BG_normalized = imBG / imBaseBG
+    # BG_normalized = imBG
     # place 4 adjustment
     imOut = imNormalized - BG_normalized
 
@@ -216,7 +250,11 @@ def plot_normalized_adjusted():
             imOut = cv2.imread(fileName, cv2.IMREAD_GRAYSCALE)
             lineOut = imOut[coordinate, :]
 
+    lineOut = imadjust(lineOut, lineOut.min(), lineOut.max(), 0, 255)
     plt.plot(lineOut)
+    plt.xlabel('Pixels')
+    plt.ylabel('Pixels values')
+    plt.title('Pixels values along the line')
     plt.savefig(outputFilename)
     plt.show()
     if Position_Type.get() == 1:  # Vertical line
@@ -231,7 +269,7 @@ def plot_normalized_adjusted():
 
 
 def plot_like_Eimar():
-    global fileName, fileNameBase, fileNameBG, imBase, im, imBG, BG_normalized
+    global fileName, fileNameBase, fileNameBaseBG, fileNameBG, imBase, im, imBG, BG_normalized, imBaseBG
     outputFilename = fileName[:-3] + "_output.png"
     coordinate = int(text5.get(1.0, END))
     print(coordinate)
@@ -257,6 +295,9 @@ def plot_like_Eimar():
             lineOut = imOut[coordinate, :] + imBG[coordinate, :, 1]
 
     plt.plot(lineOut)
+    plt.xlabel('Pixels')
+    plt.ylabel('Pixels values')
+    plt.title('Pixels values along the line')
     plt.savefig(outputFilename)
     plt.show()
     if Position_Type.get() == 1:  # Vertical line
@@ -292,12 +333,13 @@ if __name__ == '__main__':
     text3 = Text(width=70, height=1)  # Base (white field)
     text3.grid(column=1, row=2, sticky=W)
     text4 = Text(width=70, height=1)  # Output DIR
-    text4.grid(column=1, row=3, sticky=W)
+    text4.grid(column=1, row=4, sticky=W)
     text5 = Text(width=6, height=1)  # Coordinate
     text5.grid(column=5, row=0, sticky=W)
     text6 = Text(width=6, height=1)
     text6.grid(column=7, row=0, sticky=W)  # Status
-
+    text7 = Text(width=70, height=1)  # Output DIR
+    text7.grid(column=1, row=3, sticky=W)
     # text0.pack()
 
     btn1 = Button(window, text="Select Image", command=imOpen)
@@ -307,20 +349,19 @@ if __name__ == '__main__':
     btn3 = Button(window, text="Select Base", command=WhiteFieldOpen)
     btn3.grid(column=0, row=2, sticky=W)
     btn4 = Button(window, text="Output Dir ", command=selectOutputDir)
-    btn4.grid(column=0, row=3, sticky=W)
-
-
-
+    btn4.grid(column=0, row=4, sticky=W)
     btn5 = Button(window, text="Plot easy!", command=plotEasy)
     btn5.grid(column=6, row=0, sticky=W)
-    btn6 = Button(window, text="[(im/base)adjusted - (BG/base)adjusted] + (BG/base)adjusted",
+    btn6 = Button(window, text="[(im/base)adjusted - (BG/baseBG)adjusted] + (BG/baseBG)adjusted",
                   command=plot_normalized_adjusted_4_overlay)
     btn6.grid(column=2, row=2, sticky=W)
     btn7 = Button(window, text="(im - BG) + (BG)green", command=plot_like_Eimar)
     btn7.grid(column=2, row=3, sticky=W)
-    btn8 = Button(window, text="[(im/base)adjusted - (BG/base)adjusted]adjusted",
+    btn8 = Button(window, text="[(im/base)adjusted - (BG/baseBG)adjusted]adjusted",
                   command=plot_normalized_adjusted)
     btn8.grid(column=2, row=4, sticky=W)
+    btn9 = Button(window, text="Select Base BG", command=WhiteFieldOpen_BG)
+    btn9.grid(column=0, row=3, sticky=W)
 
     Position_Type = BooleanVar()
     rb0 = Radiobutton(text="Y_line", variable=Position_Type, value=0)
