@@ -123,6 +123,50 @@ def WhiteFieldOpen_BG():
     # outputFile = format(text3.get("1.0", 'end-1c'))
     return
 
+def plotMultiple():
+    global fileName, fileNameBase, fileNameBaseBG, fileNameBG, imBase, im, imBG, BG_normalized, imBaseBG
+    outputFilename = "_output_multiple.png"
+    fileNames = askopenfilenames(parent=window)
+    fileNames = sorted(fileNames)
+    coordinate = int(text5.get(1.0, END))
+
+    # if Position_Type.get() == 1:  # Vertical line
+    #     if Color_channel.get() == 0:  # Red channel intended
+    #         line = im[:, coordinate, 2]
+    #     elif Color_channel.get() == 1:  # Green channel intended
+    #         line = im[:, coordinate, 1]
+    #     elif Color_channel.get() == 2:  # Grayscale intended
+    #         im = cv2.imread(fileName, cv2.IMREAD_GRAYSCALE)
+    #         line = im[:, coordinate]
+    #
+    # elif Position_Type.get() == 0:  # Horizontal line
+    #     if Color_channel.get() == 0:  # Red channel intended
+    #         line = im[coordinate, :, 0]
+    #     elif Color_channel.get() == 1:  # Green channel intended
+    #         line = im[coordinate, :, 1]
+    #     elif Color_channel.get() == 2:  # Grayscale intended
+    #         im = cv2.imread(fileName, cv2.IMREAD_GRAYSCALE)
+    #         line = im[:, coordinate]
+
+    for fileName in fileNames:
+        print(fileName)
+        im = cv2.imread(fileName)
+        im = cv2.cvtColor(im, cv2.COLOR_BGR2RGB)
+        if Position_Type.get() == 1:  # Vertical line
+            if Color_channel.get() == 0:  # Red channel intended
+                line = im[:, coordinate, 2]
+            elif Color_channel.get() == 1:  # Green channel intended
+                line = im[:, coordinate, 1]
+        elif Position_Type.get() == 0:  # Horizontal line
+            if Color_channel.get() == 0:  # Red channel intended
+                line = im[coordinate, :, 0]
+            elif Color_channel.get() == 1:  # Green channel intended
+                line = im[coordinate, :, 1]
+        plt.plot(line)
+    plt.savefig(outputFilename)
+    plt.show()
+    text6.insert(INSERT, 'Ready')
+    text8.insert(INSERT, 'Ready')
 
 def plotEasy():
     global fileName, fileNameBase, fileNameBaseBG, fileNameBG, imBase, im, imBG, BG_normalized, imBaseBG
@@ -314,7 +358,7 @@ def plot_like_Eimar():
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     window = Tk()
-    window.geometry('1350x130')
+    window.geometry('1350x160')
     window.title("imageLinePlotter")
 
     # lbl0 = Label(window, text="Выбор директории выходного файла")
@@ -340,6 +384,8 @@ if __name__ == '__main__':
     text6.grid(column=7, row=0, sticky=W)  # Status
     text7 = Text(width=70, height=1)  # Output DIR
     text7.grid(column=1, row=3, sticky=W)
+    text8 = Text(width=70, height=1)  # Output DIR
+    text8.grid(column=1, row=5, sticky=W)
     # text0.pack()
 
     btn1 = Button(window, text="Select Image", command=imOpen)
@@ -362,6 +408,8 @@ if __name__ == '__main__':
     btn8.grid(column=2, row=4, sticky=W)
     btn9 = Button(window, text="Select Base BG", command=WhiteFieldOpen_BG)
     btn9.grid(column=0, row=3, sticky=W)
+    btn10 = Button(window, text="Select multiple", command=plotMultiple)
+    btn10.grid(column=0, row=5, sticky=W)
 
     Position_Type = BooleanVar()
     rb0 = Radiobutton(text="Y_line", variable=Position_Type, value=0)
