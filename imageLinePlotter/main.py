@@ -125,7 +125,7 @@ def WhiteFieldOpen_BG():
 
 def plotMultiple():
     global fileName, fileNameBase, fileNameBaseBG, fileNameBG, imBase, im, imBG, BG_normalized, imBaseBG
-    outputFilename = "_output_multiple.png"
+    outputFilename = format(text4.get("1.0", 'end-1c')) + "/_output_multiple.png"
     fileNames = askopenfilenames(parent=window)
     fileNames = sorted(fileNames)
     coordinate = int(text5.get(1.0, END))
@@ -163,6 +163,7 @@ def plotMultiple():
             elif Color_channel.get() == 1:  # Green channel intended
                 line = im[coordinate, :, 1]
         plt.plot(line)
+    print(outputFilename)
     plt.savefig(outputFilename)
     plt.show()
     text6.insert(INSERT, 'Ready')
