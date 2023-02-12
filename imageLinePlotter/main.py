@@ -20,7 +20,7 @@ fileNameBase = ""
 fileNameBaseBG = ""
 
 
-def imadjust(x, a, b, c, d, gamma=1):
+def imadjust(x, a, b, c = 0, d = 255, gamma=1):
     # Similar to imadjust in MATLAB.
     # Converts an image range from [a,b] to [c,d].
     # The Equation of a line can be used for this transformation:
@@ -58,6 +58,46 @@ def imOpen():
     plt.imshow(im)
     plt.title('im')
     # plt.colorbar()
+    plt.show()
+    # fileName = fileName[:-3]
+    # plt.savefig(fileName + 'png')
+    # plt.show()
+    # outputFile = format(text3.get("1.0", 'end-1c'))
+    return
+
+def im_adjust():
+    global fileName, fileNameBase, fileNameBaseBG, fileNameBG, imBase, im, imBG, BG_normalized, imBaseBG
+    text6.delete(1.0, END)
+    text1.delete(1.0, END)
+    fileName = askopenfilenames(parent=window)
+    text1.insert(INSERT, fileName)
+    fileName = format(text1.get("1.0", 'end-1c'))
+    im = cv2.imread(fileName)
+    im = cv2.cvtColor(im, cv2.COLOR_BGR2RGB)
+    if Color_channel.get() == 0:  # Red channel intended
+        image = im[:, :, 0]
+    elif Color_channel.get() == 1:  # Green channel intended
+        image = im[:, :, 1]
+    elif Color_channel.get() == 2:  # grayscale intended
+        image = cv2.imread(fileName, cv2.IMREAD_GRAYSCALE)
+    min = np.min(image)
+    max = np.max(image)
+    print (min)
+    print(max)
+    imAdjusteded = imadjust(image, np.min(image), np.max(image), 0, 255, 1)
+    # imadjust(x, a, b, c = 0, d = 255, gamma=1)
+    print(type(im))
+    fig, axes = plt.subplots(1, 2)
+
+    axes[0].imshow(im)
+    axes[0].set_title('original')
+
+    axes[1].imshow(imAdjusteded)
+    axes[1].set_title('adjusted')
+
+    plt.imshow(imAdjusteded)
+    plt.title('imAdjusted')
+    plt.colorbar()
     plt.show()
     # fileName = fileName[:-3]
     # plt.savefig(fileName + 'png')
@@ -411,6 +451,8 @@ if __name__ == '__main__':
     btn9.grid(column=0, row=3, sticky=W)
     btn10 = Button(window, text="Select multiple", command=plotMultiple)
     btn10.grid(column=0, row=5, sticky=W)
+    btn11 = Button(window, text="imadjust", command=im_adjust)
+    btn11.grid(column=2, row=5, sticky=W)
 
     Position_Type = BooleanVar()
     rb0 = Radiobutton(text="Y_line", variable=Position_Type, value=0)
