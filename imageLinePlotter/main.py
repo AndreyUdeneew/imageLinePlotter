@@ -406,7 +406,10 @@ def R2G():
     print(min)
     print(max)
     Ratio_adjusted = imadjust(Ratio, np.min(Ratio), np.max(Ratio), 0, 255, 1)
-    cv2.imshow(Ratio_adjusted)
+    cv2.imshow("ratio.bmp", deltaRed)
+    # cv2.imshow("ratio.bmp", deltaGreen)
+    # cv2.imshow("difference.bmp", Ratio)
+    # cv2.imshow("ratio.bmp", Ratio_adjusted)
     return
 
 
@@ -421,7 +424,10 @@ def R_G():
     print(min)
     print(max)
     DIFFERENCE_adjusted = imadjust(DIFFERENCE, np.min(DIFFERENCE), np.max(DIFFERENCE), 0, 255, 1)
-    cv2.imshow(DIFFERENCE_adjusted)
+    cv2.imshow("ratio.bmp", deltaRed)
+    # cv2.imshow("ratio.bmp", deltaGreen)
+    # cv2.imshow("difference.bmp", DIFFERENCE)
+    # cv2.imshow("difference.bmp", DIFFERENCE_adjusted)
     return
 
 def comparison():
