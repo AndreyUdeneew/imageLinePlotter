@@ -248,8 +248,8 @@ def plotEasy():
     elif Position_Type.get() == 0:  # Horizontal line
         im[coordinate, :, 2] = '255'
     cv2.imshow(outputFilename, im)
-    imageName = fileName[:-3] + "_demo.png"
-    cv2.imwrite(imageName, im)
+    # imageName = fileName[:-3] + "_demo.png"
+    # cv2.imwrite(imageName, im)
     return
 
 
@@ -395,11 +395,22 @@ def plot_like_Eimar():
     cv2.imwrite(imageName, im)
     return
 
+def R2G():
+    global fileName, fileNameBase, fileNameBaseBG, fileNameBG, imBase, im, imBG, BG_normalized, imBaseBG
+    print("R/G")
+    return
+
+
+def R_G():
+    global fileName, fileNameBase, fileNameBaseBG, fileNameBG, imBase, im, imBG, BG_normalized, imBaseBG
+    print("R-G")
+    return
+
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     window = Tk()
-    window.geometry('1350x160')
+    window.geometry('1350x250')
     window.title("imageLinePlotter")
 
     # lbl0 = Label(window, text="Выбор директории выходного файла")
@@ -453,6 +464,10 @@ if __name__ == '__main__':
     btn10.grid(column=0, row=5, sticky=W)
     btn11 = Button(window, text="imadjust", command=im_adjust)
     btn11.grid(column=2, row=5, sticky=W)
+    btn12 = Button(window, text="R/G", command=R2G)
+    btn12.grid(column=2, row=6, sticky=W)
+    btn13 = Button(window, text="R-G", command=R_G)
+    btn13.grid(column=2, row=7, sticky=W)
 
     Position_Type = BooleanVar()
     rb0 = Radiobutton(text="Y_line", variable=Position_Type, value=0)
