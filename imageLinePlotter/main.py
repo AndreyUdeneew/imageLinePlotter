@@ -398,12 +398,51 @@ def plot_like_Eimar():
 def R2G():
     global fileName, fileNameBase, fileNameBaseBG, fileNameBG, imBase, im, imBG, BG_normalized, imBaseBG
     print("R/G")
+    deltaRed = im[:, :, 0] - imBG[:, :, 0]
+    deltaGreen = im[:, :, 1] - imBG[:, :, 1]
+    Ratio = deltaRed/deltaGreen
+    min = np.min(Ratio)
+    max = np.max(Ratio)
+    print(min)
+    print(max)
+    Ratio_adjusted = imadjust(Ratio, np.min(Ratio), np.max(Ratio), 0, 255, 1)
+    cv2.imshow(Ratio_adjusted)
     return
 
 
 def R_G():
     global fileName, fileNameBase, fileNameBaseBG, fileNameBG, imBase, im, imBG, BG_normalized, imBaseBG
     print("R-G")
+    deltaRed = im[:, :, 0] - imBG[:, :, 0]
+    deltaGreen = im[:, :, 1] - imBG[:, :, 1]
+    DIFFERENCE = deltaRed - deltaGreen
+    min = np.min(DIFFERENCE)
+    max = np.max(DIFFERENCE)
+    print(min)
+    print(max)
+    DIFFERENCE_adjusted = imadjust(DIFFERENCE, np.min(DIFFERENCE), np.max(DIFFERENCE), 0, 255, 1)
+    cv2.imshow(DIFFERENCE_adjusted)
+    return
+
+def comparison():
+    global fileName, fileNameBase, fileNameBaseBG, fileNameBG, imBase, im, imBG, BG_normalized, imBaseBG
+    print("R/G vs R-G")
+    deltaRed = im[:, :, 0] - imBG[:, :, 0]
+    deltaGreen = im[:, :, 1] - imBG[:, :, 1]
+    DIFFERENCE = deltaRed - deltaGreen
+    Ratio = deltaRed/deltaGreen
+    min = np.min(DIFFERENCE)
+    max = np.max(DIFFERENCE)
+    print (min)
+    print(max)
+    DIFFERENCE_adjusted = imadjust(DIFFERENCE, np.min(DIFFERENCE), np.max(DIFFERENCE), 0, 255, 1)
+    min = np.min(Ratio)
+    max = np.max(Ratio)
+    print(min)
+    print(max)
+    Ratio_adjusted = imadjust(Ratio, np.min(Ratio), np.max(Ratio), 0, 255, 1)
+    cv2.imshow([Ratio_adjusted, DIFFERENCE_adjusted])
+
     return
 
 
@@ -468,6 +507,8 @@ if __name__ == '__main__':
     btn12.grid(column=2, row=6, sticky=W)
     btn13 = Button(window, text="R-G", command=R_G)
     btn13.grid(column=2, row=7, sticky=W)
+    btn14 = Button(window, text="R/G vs R-G", command=comparison)
+    btn14.grid(column=2, row=8, sticky=W)
 
     Position_Type = BooleanVar()
     rb0 = Radiobutton(text="Y_line", variable=Position_Type, value=0)
