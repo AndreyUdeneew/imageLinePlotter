@@ -398,33 +398,72 @@ def plot_like_Eimar():
 def R2G():
     global fileName, fileNameBase, fileNameBaseBG, fileNameBG, imBase, im, imBG, BG_normalized, imBaseBG
     print("R/G")
-    deltaRed = im[:, :, 0] - imBG[:, :, 0]
-    deltaGreen = im[:, :, 1] - imBG[:, :, 1]
-    Ratio = deltaRed/deltaGreen
+    deltaRed = cv2.subtract(im[:, :, 0], imBG[:, :, 0])
+    deltaGreen = cv2.subtract(im[:, :, 1], imBG[:, :, 1])
+    Ratio = cv2.divide(deltaRed, deltaGreen)
     min = np.min(Ratio)
     max = np.max(Ratio)
     print(min)
     print(max)
     Ratio_adjusted = imadjust(Ratio, np.min(Ratio), np.max(Ratio), 0, 255, 1)
-    cv2.imshow("ratio.bmp", deltaRed)
+    plt.imshow(Ratio_adjusted, cmap='gray', vmin=0, vmax=255)
+    plt.show()
+    # cv2.imshow("ratio.bmp", deltaRed)
     # cv2.imshow("ratio.bmp", deltaGreen)
     # cv2.imshow("difference.bmp", Ratio)
     # cv2.imshow("ratio.bmp", Ratio_adjusted)
+
     return
 
 
 def R_G():
     global fileName, fileNameBase, fileNameBaseBG, fileNameBG, imBase, im, imBG, BG_normalized, imBaseBG
     print("R-G")
-    deltaRed = im[:, :, 0] - imBG[:, :, 0]
-    deltaGreen = im[:, :, 1] - imBG[:, :, 1]
-    DIFFERENCE = deltaRed - deltaGreen
+    deltaRed = cv2.subtract(im[:, :, 0], imBG[:, :, 0])
+    deltaGreen = cv2.subtract(im[:, :, 1], imBG[:, :, 1])
+    DIFFERENCE = cv2.subtract(deltaRed, deltaGreen)
+    # DIFFERENCE = cv2.subtract(im, imBG)[:, :, 0]
     min = np.min(DIFFERENCE)
     max = np.max(DIFFERENCE)
     print(min)
     print(max)
     DIFFERENCE_adjusted = imadjust(DIFFERENCE, np.min(DIFFERENCE), np.max(DIFFERENCE), 0, 255, 1)
-    cv2.imshow("ratio.bmp", deltaRed)
+
+    outputFilename = fileName[:-3] + "_output.png"
+    coordinate = int(text5.get(1.0, END))
+
+    if Position_Type.get() == 1:  # Vertical line
+        if Color_channel.get() == 0:  # Red channel intended
+            line_deltaRed = deltaRed[:, coordinate]
+            line_deltaGreen = deltaGreen[:, coordinate]
+            line_DIFFERENCE_adjusted = DIFFERENCE_adjusted[:, coordinate]
+            # line_Ratio_adjusted = Ratio_adjusted[:, coordinate]
+
+    elif Position_Type.get() == 0:  # Horizontal line
+            line_deltaRed = deltaRed[coordinate, :]
+            line_deltaGreen = deltaGreen[coordinate, :]
+            line_DIFFERENCE_adjusted = DIFFERENCE_adjusted[coordinate, :]
+            # line_Ratio_adjusted = Ratio_adjusted[coordinate, :]
+
+    fig = plt.figure()
+    ax_1 = fig.add_subplot(2, 2, 1)
+    ax_2 = fig.add_subplot(2, 2, 2)
+    ax_3 = fig.add_subplot(2, 2, 3)
+    ax_4 = fig.add_subplot(2, 2, 4)
+
+    ax_1.set(title='deltaRED', xticks=[], yticks=[])
+    ax_2.set(title='difference_adjusted', xticks=[], yticks=[])
+    ax_3.set(title='plot_IM', xticks=[], yticks=[], xlabel='Pixels', ylabel='Pixels Values')
+    ax_4.set(title='plot_difference_adjusted', xticks=[], yticks=[], xlabel='Pixels', ylabel='Pixels Values')
+
+    ax_1.imshow(deltaRed, cmap='gray')
+    ax_2.imshow(DIFFERENCE_adjusted, cmap='gray', vmin=0, vmax=255)
+    ax_3.plot(line_deltaRed)
+    ax_4.plot(line_DIFFERENCE_adjusted)
+
+    plt.savefig(outputFilename)
+    plt.show()
+    # cv2.imshow("ratio.bmp", deltaRed)
     # cv2.imshow("ratio.bmp", deltaGreen)
     # cv2.imshow("difference.bmp", DIFFERENCE)
     # cv2.imshow("difference.bmp", DIFFERENCE_adjusted)
@@ -433,21 +472,62 @@ def R_G():
 def comparison():
     global fileName, fileNameBase, fileNameBaseBG, fileNameBG, imBase, im, imBG, BG_normalized, imBaseBG
     print("R/G vs R-G")
-    deltaRed = im[:, :, 0] - imBG[:, :, 0]
-    deltaGreen = im[:, :, 1] - imBG[:, :, 1]
-    DIFFERENCE = deltaRed - deltaGreen
-    Ratio = deltaRed/deltaGreen
-    min = np.min(DIFFERENCE)
-    max = np.max(DIFFERENCE)
-    print (min)
-    print(max)
+    deltaRed = cv2.subtract(im[:, :, 0], imBG[:, :, 0])
+    deltaGreen = cv2.subtract(im[:, :, 1], imBG[:, :, 1])
+    DIFFERENCE = cv2.subtract(deltaRed, deltaGreen)
+    Ratio = cv2.divide(deltaRed, deltaGreen)
+
     DIFFERENCE_adjusted = imadjust(DIFFERENCE, np.min(DIFFERENCE), np.max(DIFFERENCE), 0, 255, 1)
-    min = np.min(Ratio)
-    max = np.max(Ratio)
-    print(min)
-    print(max)
     Ratio_adjusted = imadjust(Ratio, np.min(Ratio), np.max(Ratio), 0, 255, 1)
-    cv2.imshow([Ratio_adjusted, DIFFERENCE_adjusted])
+    deltaRed_adjusted = imadjust(deltaRed, np.min(deltaRed), np.max(deltaRed), 0, 255, 1)
+    deltaGreen_adjusted = imadjust(deltaGreen, np.min(deltaGreen), np.max(deltaGreen), 0, 255, 1)
+
+    outputFilename = fileName[:-3] + "_output.png"
+    coordinate = int(text5.get(1.0, END))
+
+    if Position_Type.get() == 1:  # Vertical line
+        if Color_channel.get() == 0:  # Red channel intended
+            line_deltaRed = deltaRed[:, coordinate]
+            line_deltaGreen = deltaGreen[:, coordinate]
+            line_DIFFERENCE_adjusted = DIFFERENCE_adjusted[:, coordinate]
+            line_Ratio_adjusted = Ratio_adjusted[:, coordinate]
+
+    elif Position_Type.get() == 0:  # Horizontal line
+            line_deltaRed = deltaRed[coordinate, :]
+            line_deltaGreen = deltaGreen[coordinate, :]
+            line_DIFFERENCE_adjusted = DIFFERENCE_adjusted[coordinate, :]
+            line_Ratio_adjusted = Ratio_adjusted[coordinate, :]
+
+    fig = plt.figure()
+    ax_1 = fig.add_subplot(2, 4, 1)
+    ax_2 = fig.add_subplot(2, 4, 2)
+    ax_3 = fig.add_subplot(2, 4, 3)
+    ax_4 = fig.add_subplot(2, 4, 4)
+    ax_5 = fig.add_subplot(2, 4, 5)
+    ax_6 = fig.add_subplot(2, 4, 6)
+    ax_7 = fig.add_subplot(2, 4, 7)
+    ax_8 = fig.add_subplot(2, 4, 8)
+
+    ax_1.set(title='deltaR_adjusted')
+    ax_2.set(title='deltaG_adjusted')
+    ax_3.set(title='R/G adj')
+    ax_4.set(title='R-G adj')
+    ax_5.set(xlabel='Pixels', ylabel='Pixels Values')
+    ax_6.set(xlabel='Pixels')
+    ax_7.set(xlabel='Pixels')
+    ax_8.set(xlabel='Pixels')
+
+    ax_1.imshow(deltaRed_adjusted, cmap='gray', vmin=0, vmax=255)
+    ax_2.imshow(deltaGreen_adjusted, cmap='gray', vmin=0, vmax=255)
+    ax_3.imshow(Ratio_adjusted, cmap='gray', vmin=0, vmax=255)
+    ax_4.imshow(DIFFERENCE_adjusted, cmap='gray', vmin=0, vmax=255)
+    ax_5.plot(line_deltaRed)
+    ax_6.plot(line_deltaGreen)
+    ax_7.plot(line_Ratio_adjusted)
+    ax_8.plot(line_DIFFERENCE_adjusted)
+
+    plt.savefig(outputFilename)
+    plt.show()
 
     return
 
