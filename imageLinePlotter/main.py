@@ -489,42 +489,75 @@ def comparison():
         if Color_channel.get() == 0:  # Red channel intended
             line_deltaRed = deltaRed[:, coordinate]
             line_deltaGreen = deltaGreen[:, coordinate]
+            line_DIFFERENCE = DIFFERENCE[:, coordinate]
+            line_Ratio = Ratio[:, coordinate]
             line_DIFFERENCE_adjusted = DIFFERENCE_adjusted[:, coordinate]
             line_Ratio_adjusted = Ratio_adjusted[:, coordinate]
 
     elif Position_Type.get() == 0:  # Horizontal line
             line_deltaRed = deltaRed[coordinate, :]
             line_deltaGreen = deltaGreen[coordinate, :]
+            line_DIFFERENCE = DIFFERENCE[coordinate, :]
+            line_Ratio = Ratio[coordinate, :]
             line_DIFFERENCE_adjusted = DIFFERENCE_adjusted[coordinate, :]
             line_Ratio_adjusted = Ratio_adjusted[coordinate, :]
 
     fig = plt.figure()
-    ax_1 = fig.add_subplot(2, 4, 1)
-    ax_2 = fig.add_subplot(2, 4, 2)
-    ax_3 = fig.add_subplot(2, 4, 3)
-    ax_4 = fig.add_subplot(2, 4, 4)
-    ax_5 = fig.add_subplot(2, 4, 5)
-    ax_6 = fig.add_subplot(2, 4, 6)
-    ax_7 = fig.add_subplot(2, 4, 7)
-    ax_8 = fig.add_subplot(2, 4, 8)
+    ax_1 = fig.add_subplot(2, 6, 1)
+    ax_2 = fig.add_subplot(2, 6, 2)
+    ax_3 = fig.add_subplot(2, 6, 3)
+    ax_4 = fig.add_subplot(2, 6, 4)
+    ax_5 = fig.add_subplot(2, 6, 5)
+    ax_6 = fig.add_subplot(2, 6, 6)
+    ax_7 = fig.add_subplot(2, 6, 7)
+    ax_8 = fig.add_subplot(2, 6, 8)
+    ax_9 = fig.add_subplot(2, 6, 9)
+    ax_10 = fig.add_subplot(2, 6, 10)
+    ax_11 = fig.add_subplot(2, 6, 11)
+    ax_12 = fig.add_subplot(2, 6, 12)
 
-    ax_1.set(title='deltaR_adjusted')
-    ax_2.set(title='deltaG_adjusted')
-    ax_3.set(title='R/G adj')
-    ax_4.set(title='R-G adj')
-    ax_5.set(xlabel='Pixels', ylabel='Pixels Values')
-    ax_6.set(xlabel='Pixels')
-    ax_7.set(xlabel='Pixels')
+    ax_1.set(title='deltaR')
+    ax_2.set(title='deltaG')
+    ax_3.set(title='R/G')
+    ax_4.set(title='R-G')
+    ax_5.set(title='R/G adj')
+    ax_6.set(title='R-G adj')
+    ax_7.set(xlabel='Pixels', ylabel='Pixels Values')
     ax_8.set(xlabel='Pixels')
+    ax_9.set(xlabel='Pixels')
+    ax_10.set(xlabel='Pixels')
+    ax_11.set(xlabel='Pixels')
+    ax_12.set(xlabel='Pixels')
 
-    ax_1.imshow(deltaRed_adjusted, cmap='gray', vmin=0, vmax=255)
-    ax_2.imshow(deltaGreen_adjusted, cmap='gray', vmin=0, vmax=255)
-    ax_3.imshow(Ratio_adjusted, cmap='gray', vmin=0, vmax=255)
-    ax_4.imshow(DIFFERENCE_adjusted, cmap='gray', vmin=0, vmax=255)
-    ax_5.plot(line_deltaRed)
-    ax_6.plot(line_deltaGreen)
-    ax_7.plot(line_Ratio_adjusted)
-    ax_8.plot(line_DIFFERENCE_adjusted)
+
+    ax_7.plot(line_deltaRed)
+    ax_8.plot(line_deltaGreen)
+    ax_9.plot(line_Ratio)
+    ax_10.plot(line_DIFFERENCE)
+    ax_11.plot(line_Ratio_adjusted)
+    ax_12.plot(line_DIFFERENCE_adjusted)
+
+    if Position_Type.get() == 1:  # Vertical line
+        deltaRed[:, coordinate] = 255
+        deltaGreen[:, coordinate] = 255
+        DIFFERENCE[:, coordinate] = 255
+        Ratio[:, coordinate] = 255
+        DIFFERENCE_adjusted[:, coordinate] = 255
+        Ratio_adjusted[:, coordinate] = 255
+    elif Position_Type.get() == 0:  # Horizontal line
+        deltaRed[coordinate, :] = 255
+        deltaGreen[coordinate, :] = 255
+        DIFFERENCE[coordinate, :] = 255
+        Ratio[coordinate, :] = 255
+        DIFFERENCE_adjusted[coordinate, :] = 255
+        Ratio_adjusted[coordinate, :] = 255
+
+    ax_1.imshow(deltaRed, cmap='gray', vmin=0, vmax=255)
+    ax_2.imshow(deltaGreen, cmap='gray', vmin=0, vmax=255)
+    ax_3.imshow(Ratio, cmap='gray', vmin=0, vmax=255)
+    ax_4.imshow(DIFFERENCE, cmap='gray', vmin=0, vmax=255)
+    ax_5.imshow(Ratio_adjusted, cmap='gray', vmin=0, vmax=255)
+    ax_6.imshow(DIFFERENCE_adjusted, cmap='gray', vmin=0, vmax=255)
 
     plt.savefig(outputFilename)
     plt.show()
