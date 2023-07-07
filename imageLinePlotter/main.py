@@ -472,15 +472,36 @@ def R_G():
 def comparison():
     global fileName, fileNameBase, fileNameBaseBG, fileNameBG, imBase, im, imBG, BG_normalized, imBaseBG
     print("R/G vs R-G")
-    deltaRed = cv2.subtract(im[:, :, 0], imBG[:, :, 0])
-    deltaGreen = cv2.subtract(im[:, :, 1], imBG[:, :, 1])
+    imRed = im[:, :, 0]
+    imGreen = im[:, :, 1]
+    BG_red = imBG[:, :, 0]
+    BG_green = imBG[:, :, 1]
+
+    imRed_adjusted = imadjust(imRed, np.min(imRed), np.max(imRed), 0, 255, 1)
+    imGreen_adjusted = imadjust(imGreen, np.min(imGreen), np.max(imGreen), 0, 255, 1)
+    BG_red_adjusted = imadjust(BG_red, np.min(BG_red), np.max(BG_red), 0, 255, 1)
+    BG_green_adjusted = imadjust(BG_green, np.min(BG_green), np.max(BG_green), 0, 255, 1)
+
+    deltaRed = cv2.subtract(imRed, BG_red)
+    deltaGreen = cv2.subtract(imGreen, BG_green)
+
+    # deltaRed_norm = cv2.divide(deltaRed, BG_red_adjusted)
+    # deltaGreen_norm = cv2.divide(deltaGreen, BG_green_adjusted)
+    # deltaRed_norm_adjusted = imadjust(deltaRed_norm, np.min(deltaRed_norm), np.max(deltaRed_norm), 0, 255, 1)
+    # deltaGreen_norm_adjusted = imadjust(deltaGreen_norm, np.min(deltaGreen_norm), np.max(deltaGreen_norm), 0, 255, 1)
     DIFFERENCE = cv2.subtract(deltaRed, deltaGreen)
     Ratio = cv2.divide(deltaRed, deltaGreen)
+    # DIFFERENCE = cv2.subtract(deltaRed_norm_adjusted, deltaGreen_norm_adjusted)
+    # Ratio = cv2.divide(deltaRed_norm_adjusted, deltaGreen_norm_adjusted)
 
+    BG_red_adj = imadjust(BG_red, np.min(BG_red), np.max(BG_red), 0, 255, 1)
+    BG_green_adj = imadjust(BG_green, np.min(BG_green), np.max(BG_green), 0, 255, 1)
     DIFFERENCE_adjusted = imadjust(DIFFERENCE, np.min(DIFFERENCE), np.max(DIFFERENCE), 0, 255, 1)
     Ratio_adjusted = imadjust(Ratio, np.min(Ratio), np.max(Ratio), 0, 255, 1)
     deltaRed_adjusted = imadjust(deltaRed, np.min(deltaRed), np.max(deltaRed), 0, 255, 1)
     deltaGreen_adjusted = imadjust(deltaGreen, np.min(deltaGreen), np.max(deltaGreen), 0, 255, 1)
+
+
 
     outputFilename = fileName[:-3] + "_output.png"
     coordinate = int(text5.get(1.0, END))
@@ -489,6 +510,8 @@ def comparison():
         if Color_channel.get() == 0:  # Red channel intended
             line_deltaRed = deltaRed[:, coordinate]
             line_deltaGreen = deltaGreen[:, coordinate]
+            # line_deltaRed_norm_adjusted = deltaRed_norm_adjusted[:, coordinate]
+            # line_deltaGreen_norm_adjusted = deltaGreen_norm_adjusted[:, coordinate]
             line_DIFFERENCE = DIFFERENCE[:, coordinate]
             line_Ratio = Ratio[:, coordinate]
             line_DIFFERENCE_adjusted = DIFFERENCE_adjusted[:, coordinate]
@@ -497,6 +520,8 @@ def comparison():
     elif Position_Type.get() == 0:  # Horizontal line
             line_deltaRed = deltaRed[coordinate, :]
             line_deltaGreen = deltaGreen[coordinate, :]
+            # line_deltaRed_norm_adjusted = deltaRed_norm_adjusted[coordinate, :]
+            # line_deltaGreen_norm_adjusted = deltaGreen_norm_adjusted[coordinate, :]
             line_DIFFERENCE = DIFFERENCE[coordinate, :]
             line_Ratio = Ratio[coordinate, :]
             line_DIFFERENCE_adjusted = DIFFERENCE_adjusted[coordinate, :]
@@ -518,16 +543,16 @@ def comparison():
 
     ax_1.set(title='deltaR')
     ax_2.set(title='deltaG')
-    ax_3.set(title='R/G')
+    ax_3.set(title='R/G ')
     ax_4.set(title='R-G')
     ax_5.set(title='R/G adj')
     ax_6.set(title='R-G adj')
-    ax_7.set(xlabel='Pixels', ylabel='Pixels Values')
-    ax_8.set(xlabel='Pixels')
-    ax_9.set(xlabel='Pixels')
-    ax_10.set(xlabel='Pixels')
-    ax_11.set(xlabel='Pixels')
-    ax_12.set(xlabel='Pixels')
+    ax_7.set(xlabel='Pixels', ylabel='Pixels Values', xlim = [0, len(line_deltaRed)])
+    ax_8.set(xlabel='Pixels', xlim = [0, len(line_deltaRed)])
+    ax_9.set(xlabel='Pixels', xlim = [0, len(line_deltaRed)])
+    ax_10.set(xlabel='Pixels', xlim = [0, len(line_deltaRed)])
+    ax_11.set(xlabel='Pixels', xlim = [0, len(line_deltaRed)])
+    ax_12.set(xlabel='Pixels', xlim = [0, len(line_deltaRed)])
 
 
     ax_7.plot(line_deltaRed)
@@ -540,6 +565,8 @@ def comparison():
     if Position_Type.get() == 1:  # Vertical line
         deltaRed[:, coordinate] = 255
         deltaGreen[:, coordinate] = 255
+        # deltaRed_norm_adjusted[:, coordinate] = 255
+        # deltaGreen_norm_adjusted[:, coordinate] = 255
         DIFFERENCE[:, coordinate] = 255
         Ratio[:, coordinate] = 255
         DIFFERENCE_adjusted[:, coordinate] = 255
@@ -547,17 +574,19 @@ def comparison():
     elif Position_Type.get() == 0:  # Horizontal line
         deltaRed[coordinate, :] = 255
         deltaGreen[coordinate, :] = 255
+        # deltaRed_norm_adjusted[coordinate, :] = 255
+        # deltaGreen_norm_adjusted[coordinate, :] = 255
         DIFFERENCE[coordinate, :] = 255
         Ratio[coordinate, :] = 255
         DIFFERENCE_adjusted[coordinate, :] = 255
         Ratio_adjusted[coordinate, :] = 255
 
-    ax_1.imshow(deltaRed, cmap='gray', vmin=0, vmax=255)
-    ax_2.imshow(deltaGreen, cmap='gray', vmin=0, vmax=255)
-    ax_3.imshow(Ratio, cmap='gray', vmin=0, vmax=255)
-    ax_4.imshow(DIFFERENCE, cmap='gray', vmin=0, vmax=255)
-    ax_5.imshow(Ratio_adjusted, cmap='gray', vmin=0, vmax=255)
-    ax_6.imshow(DIFFERENCE_adjusted, cmap='gray', vmin=0, vmax=255)
+    ax_1.imshow(deltaRed, cmap='gray')
+    ax_2.imshow(deltaGreen, cmap='gray')
+    ax_3.imshow(Ratio, cmap='gray')
+    ax_4.imshow(DIFFERENCE, cmap='gray')
+    ax_5.imshow(Ratio_adjusted, cmap='gray')
+    ax_6.imshow(DIFFERENCE_adjusted, cmap='gray')
 
     plt.savefig(outputFilename)
     plt.show()
