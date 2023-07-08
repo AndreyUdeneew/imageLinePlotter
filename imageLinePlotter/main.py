@@ -13,6 +13,7 @@ import cv2
 
 from matplotlib import pyplot as plt
 import numpy as np
+from matplotlib.pyplot import subplots_adjust
 
 fileName = ""
 fileNameBG = ""
@@ -504,6 +505,8 @@ def comparison():
 
 
     outputFilename = fileName[:-3] + "_output.png"
+    outputFilename_demo = outputFilename[:-3] + "_demo.png"
+
     coordinate = int(text5.get(1.0, END))
 
     if Position_Type.get() == 1:  # Vertical line
@@ -527,19 +530,40 @@ def comparison():
             line_DIFFERENCE_adjusted = DIFFERENCE_adjusted[coordinate, :]
             line_Ratio_adjusted = Ratio_adjusted[coordinate, :]
 
-    fig = plt.figure()
-    ax_1 = fig.add_subplot(2, 6, 1)
-    ax_2 = fig.add_subplot(2, 6, 2)
-    ax_3 = fig.add_subplot(2, 6, 3)
-    ax_4 = fig.add_subplot(2, 6, 4)
-    ax_5 = fig.add_subplot(2, 6, 5)
-    ax_6 = fig.add_subplot(2, 6, 6)
-    ax_7 = fig.add_subplot(2, 6, 7)
-    ax_8 = fig.add_subplot(2, 6, 8)
-    ax_9 = fig.add_subplot(2, 6, 9)
-    ax_10 = fig.add_subplot(2, 6, 10)
-    ax_11 = fig.add_subplot(2, 6, 11)
-    ax_12 = fig.add_subplot(2, 6, 12)
+
+    fig1 = plt.figure()
+    ax1 = fig1.add_subplot(2, 1, 1)
+    ax2 = fig1.add_subplot(2, 1, 2, sharex=ax1)
+    ax1.set(title='Fluorescence image')
+    ax2.set(title='Plots of modes', xlabel='Pixels', ylabel='Pixels Values', xlim = [0, len(line_deltaRed)])
+    ax2.plot(line_deltaRed, color='red')
+    ax2.plot(line_deltaGreen, color='green')
+    ax2.plot(line_Ratio, color='black')
+    ax2.plot(line_DIFFERENCE, color='blue')
+
+    if Position_Type.get() == 1:  # Vertical line
+        im[:, coordinate] = 255
+    elif Position_Type.get() == 0:  # Horizontal line
+        im[coordinate, :] = 255
+
+    ax1.imshow(im)
+    plt.savefig(outputFilename_demo)
+    plt.show()
+
+    fig2 = plt.figure()
+    ax_1 = fig2.add_subplot(2, 6, 1)
+    ax_2 = fig2.add_subplot(2, 6, 2)
+    ax_3 = fig2.add_subplot(2, 6, 3)
+    ax_4 = fig2.add_subplot(2, 6, 4)
+    ax_5 = fig2.add_subplot(2, 6, 5)
+    ax_6 = fig2.add_subplot(2, 6, 6)
+    ax_7 = fig2.add_subplot(2, 6, 7)
+    ax_8 = fig2.add_subplot(2, 6, 8)
+    ax_9 = fig2.add_subplot(2, 6, 9)
+    ax_10 = fig2.add_subplot(2, 6, 10)
+    ax_11 = fig2.add_subplot(2, 6, 11)
+    ax_12 = fig2.add_subplot(2, 6, 12)
+    subplots_adjust(left=None, bottom=None, right=None, top=None, wspace=None, hspace=None)
 
     ax_1.set(title='deltaR')
     ax_2.set(title='deltaG')
