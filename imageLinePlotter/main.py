@@ -504,8 +504,8 @@ def comparison():
 
 
 
-    outputFilename = fileName[:-3] + "_output.png"
-    outputFilename_demo = outputFilename[:-3] + "_demo.png"
+    outputFilename = fileName[:-4] + "_output.png"
+    outputFilename_demo = outputFilename[:-4] + "_demo.png"
 
     coordinate = int(text5.get(1.0, END))
 
@@ -534,12 +534,13 @@ def comparison():
     fig1 = plt.figure()
     ax1 = fig1.add_subplot(2, 1, 1)
     ax2 = fig1.add_subplot(2, 1, 2, sharex=ax1)
-    ax1.set(title='Fluorescence image')
-    ax2.set(title='Plots of modes', xlabel='Pixels', ylabel='Pixels Values', xlim = [0, len(line_deltaRed)])
-    ax2.plot(line_deltaRed, color='red')
-    ax2.plot(line_deltaGreen, color='green')
-    ax2.plot(line_Ratio, color='black')
-    ax2.plot(line_DIFFERENCE, color='blue')
+    ax1.set(title='a)     Fluorescence image')
+    ax2.set(title='b)     Plots of modes', xlabel='Pixels', ylabel='Pixels Values', xlim=[0, len(line_deltaRed)])
+    ax2.plot(line_deltaRed, color='red', label='red')
+    ax2.plot(line_deltaGreen, color='green', label = 'green')
+    ax2.plot(line_Ratio, color='black', label='R/G')
+    ax2.plot(line_DIFFERENCE, color='blue', label='R-G')
+    plt.legend()
 
     if Position_Type.get() == 1:  # Vertical line
         im[:, coordinate] = 255
@@ -565,18 +566,18 @@ def comparison():
     ax_12 = fig2.add_subplot(2, 6, 12)
     subplots_adjust(left=None, bottom=None, right=None, top=None, wspace=None, hspace=None)
 
-    ax_1.set(title='deltaR')
-    ax_2.set(title='deltaG')
-    ax_3.set(title='R/G ')
-    ax_4.set(title='R-G')
-    ax_5.set(title='R/G adj')
-    ax_6.set(title='R-G adj')
-    ax_7.set(xlabel='Pixels', ylabel='Pixels Values', xlim = [0, len(line_deltaRed)])
-    ax_8.set(xlabel='Pixels', xlim = [0, len(line_deltaRed)])
-    ax_9.set(xlabel='Pixels', xlim = [0, len(line_deltaRed)])
-    ax_10.set(xlabel='Pixels', xlim = [0, len(line_deltaRed)])
-    ax_11.set(xlabel='Pixels', xlim = [0, len(line_deltaRed)])
-    ax_12.set(xlabel='Pixels', xlim = [0, len(line_deltaRed)])
+    ax_1.set(title='a)     deltaR')
+    ax_2.set(title='c)     deltaG')
+    ax_3.set(title='e)     R/G')
+    ax_4.set(title='g)     R-G')
+    ax_5.set(title='i)     R/G adj')
+    ax_6.set(title='k)     R-G adj')
+    ax_7.set(title='b', xlabel='Pixels', ylabel='Pixels Values', xlim=[0, len(line_deltaRed)])
+    ax_8.set(title='d', xlabel='Pixels', xlim=[0, len(line_deltaRed)])
+    ax_9.set(title='f', xlabel='Pixels', xlim=[0, len(line_deltaRed)])
+    ax_10.set(title='h', xlabel='Pixels', xlim=[0, len(line_deltaRed)])
+    ax_11.set(title='j', xlabel='Pixels', xlim=[0, len(line_deltaRed)])
+    ax_12.set(title='l', xlabel='Pixels', xlim=[0, len(line_deltaRed)])
 
 
     ax_7.plot(line_deltaRed)
