@@ -15,6 +15,10 @@ from matplotlib import pyplot as plt
 import numpy as np
 from matplotlib.pyplot import subplots_adjust
 
+# from skimage.io import imread
+# from skimage.color import rgb2gray
+# from skimage import filters
+
 fileName = ""
 fileNameBG = ""
 fileNameBase = ""
@@ -60,6 +64,31 @@ def imOpen():
     plt.title('im')
     # plt.colorbar()
     plt.show()
+    # fileName = fileName[:-3]
+    # plt.savefig(fileName + 'png')
+    # plt.show()
+    # outputFile = format(text3.get("1.0", 'end-1c'))
+    return
+
+def im_multiply():
+    global fileName, fileNameBase, fileNameBaseBG, fileNameBG, imBase, im, imBG, BG_normalized, imBaseBG
+    text6.delete(1.0, END)
+    text1.delete(1.0, END)
+    fileName = askopenfilenames(parent=window)
+    text1.insert(INSERT, fileName)
+    fileName = format(text1.get("1.0", 'end-1c'))
+    im = cv2.imread(fileName, cv2.IMREAD_GRAYSCALE)
+    # im = cv2.cvtColor(im, cv2.COLOR_BGR2RGB)
+    print(type(im))
+    coef = int(text9.get(1.0, END))
+    im_multiplied = cv2.multiply(np.uint8(im), coef)
+    outputFilename = format(text1.get("1.0", 'end-1c')) + "_multiplied.png"
+
+    cv2.imwrite(outputFilename, im_multiplied)
+    cv2.imshow(outputFilename, im_multiplied)
+    # plt.title('im multiplied')
+    # plt.colorbar()
+    # plt.show()
     # fileName = fileName[:-3]
     # plt.savefig(fileName + 'png')
     # plt.show()
@@ -530,16 +559,27 @@ def comparison():
             line_DIFFERENCE_adjusted = DIFFERENCE_adjusted[coordinate, :]
             line_Ratio_adjusted = Ratio_adjusted[coordinate, :]
 
+            DIFF_line_deltaRed = np.diff(line_deltaRed)
+            DIFF_line_deltaGreen = np.diff(line_deltaGreen)
+            DIFF_line_Ratio = np.diff(line_Ratio)
+            DIFF_line_DIFFERENCE = np.diff(line_DIFFERENCE)
+
 
     fig1 = plt.figure()
-    ax1 = fig1.add_subplot(2, 1, 1)
-    ax2 = fig1.add_subplot(2, 1, 2, sharex=ax1)
+    ax1 = fig1.add_subplot(3, 1, 1)
+    ax2 = fig1.add_subplot(3, 1, 2, sharex=ax1)
+    ax3 = fig1.add_subplot(3, 1, 3, sharex=ax1)
     ax1.set(title='a)     Fluorescence image')
     ax2.set(title='b)     Plots of modes', xlabel='Pixels', ylabel='Pixels Values', xlim=[0, len(line_deltaRed)])
+    ax3.set(title='c)     Plots of dI/dx', xlabel='Pixels', ylabel='dI/dx, [A. U.]', xlim=[0, len(line_deltaRed)])
     ax2.plot(line_deltaRed, color='red', label='red')
     ax2.plot(line_deltaGreen, color='green', label = 'green')
     ax2.plot(line_Ratio, color='black', label='R/G')
     ax2.plot(line_DIFFERENCE, color='blue', label='R-G')
+    ax3.plot(DIFF_line_deltaRed, color='red', label='red')
+    ax3.plot(DIFF_line_deltaGreen, color='green', label = 'green')
+    ax3.plot(DIFF_line_Ratio, color='black', label='R/G')
+    ax3.plot(DIFF_line_DIFFERENCE, color='blue', label='R-G')
     plt.legend()
 
     if Position_Type.get() == 1:  # Vertical line
@@ -572,12 +612,12 @@ def comparison():
     ax_4.set(title='g)     R-G')
     ax_5.set(title='i)     R/G adj')
     ax_6.set(title='k)     R-G adj')
-    ax_7.set(title='b', xlabel='Pixels', ylabel='Pixels Values', xlim=[0, len(line_deltaRed)])
-    ax_8.set(title='d', xlabel='Pixels', xlim=[0, len(line_deltaRed)])
-    ax_9.set(title='f', xlabel='Pixels', xlim=[0, len(line_deltaRed)])
-    ax_10.set(title='h', xlabel='Pixels', xlim=[0, len(line_deltaRed)])
-    ax_11.set(title='j', xlabel='Pixels', xlim=[0, len(line_deltaRed)])
-    ax_12.set(title='l', xlabel='Pixels', xlim=[0, len(line_deltaRed)])
+    ax_7.set(title='b)', xlabel='Pixels', ylabel='Pixels Values', xlim=[0, len(line_deltaRed)])
+    ax_8.set(title='d)', xlabel='Pixels', xlim=[0, len(line_deltaRed)])
+    ax_9.set(title='f)', xlabel='Pixels', xlim=[0, len(line_deltaRed)])
+    ax_10.set(title='h)', xlabel='Pixels', xlim=[0, len(line_deltaRed)])
+    ax_11.set(title='j)', xlabel='Pixels', xlim=[0, len(line_deltaRed)])
+    ax_12.set(title='l)', xlabel='Pixels', xlim=[0, len(line_deltaRed)])
 
 
     ax_7.plot(line_deltaRed)
@@ -650,6 +690,8 @@ if __name__ == '__main__':
     text7.grid(column=1, row=3, sticky=W)
     text8 = Text(width=70, height=1)  # Output DIR
     text8.grid(column=1, row=5, sticky=W)
+    text9 = Text(width=5, height=1)  # multiplier
+    text9.grid(column=4, row=2, sticky=W)
     # text0.pack()
 
     btn1 = Button(window, text="Select Image", command=imOpen)
@@ -682,6 +724,8 @@ if __name__ == '__main__':
     btn13.grid(column=2, row=7, sticky=W)
     btn14 = Button(window, text="R/G vs R-G", command=comparison)
     btn14.grid(column=2, row=8, sticky=W)
+    btn15 = Button(window, text="multiply", command=im_multiply)
+    btn15.grid(column=5, row=2, sticky=W)
 
     Position_Type = BooleanVar()
     rb0 = Radiobutton(text="Y_line", variable=Position_Type, value=0)
