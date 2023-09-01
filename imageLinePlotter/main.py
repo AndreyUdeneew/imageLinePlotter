@@ -11,7 +11,7 @@ from tkinter.filedialog import *
 
 import cv2
 
-from matplotlib import pyplot as plt
+from matplotlib import pyplot as plt, gridspec
 import numpy as np
 from matplotlib.pyplot import subplots_adjust
 
@@ -25,7 +25,7 @@ fileNameBase = ""
 fileNameBaseBG = ""
 
 
-def imadjust(x, a, b, c = 0, d = 255, gamma=1):
+def imadjust(x):
     # Similar to imadjust in MATLAB.
     # Converts an image range from [a,b] to [c,d].
     # The Equation of a line can be used for this transformation:
@@ -34,8 +34,14 @@ def imadjust(x, a, b, c = 0, d = 255, gamma=1):
     #   y=((x-a)/(b-a))^gamma*(d-c)+c
     # If gamma is equal to 1, then the line equation is used.
     # When gamma is not equal to 1, then the transformation is not linear.
+    gamma = 1.0
+    a = np.min(x)
+    b = np.max(x)
+    c = 0.0
+    d = 255.0
 
     y = (((x - a) / (b - a)) ** gamma) * (d - c) + c
+    # y = (cv2.divide((cv2.subtract(x,a)),(cv2.subtract(b,a)),dtype=np.uint8) ** gamma) * (d - c) + c
     return y
 
 
@@ -64,6 +70,7 @@ def imOpen():
     plt.title('im')
     # plt.colorbar()
     plt.show()
+    # cv2.imshow(fileName, im)
     # fileName = fileName[:-3]
     # plt.savefig(fileName + 'png')
     # plt.show()
@@ -114,7 +121,7 @@ def im_adjust():
     max = np.max(image)
     print (min)
     print(max)
-    imAdjusteded = imadjust(image, np.min(image), np.max(image), 0, 255, 1)
+    imAdjusteded = imadjust(image, np.min(image), np.max(image), 0.0, 255.0, 1.0)
     # imadjust(x, a, b, c = 0, d = 255, gamma=1)
     print(type(im))
     fig, axes = plt.subplots(1, 2)
@@ -502,39 +509,65 @@ def R_G():
 def comparison():
     global fileName, fileNameBase, fileNameBaseBG, fileNameBG, imBase, im, imBG, BG_normalized, imBaseBG
     print("R/G vs R-G")
-    imRed = im[:, :, 0]
-    imGreen = im[:, :, 1]
-    BG_red = imBG[:, :, 0]
-    BG_green = imBG[:, :, 1]
+    # text9.insert(INSERT, "1")\
+    # im = im[:, :, 0].astype(np.float32)
+    imBlue = im[:, :, 2].astype(np.float32)
+    BG_blue = imBG[:, :, 2].astype(np.float32)
+    imBlue = cv2.add(imBlue, 1)
+    BG_blue = cv2.add(BG_blue, 1)
 
-    imRed_adjusted = imadjust(imRed, np.min(imRed), np.max(imRed), 0, 255, 1)
-    imGreen_adjusted = imadjust(imGreen, np.min(imGreen), np.max(imGreen), 0, 255, 1)
-    BG_red_adjusted = imadjust(BG_red, np.min(BG_red), np.max(BG_red), 0, 255, 1)
-    BG_green_adjusted = imadjust(BG_green, np.min(BG_green), np.max(BG_green), 0, 255, 1)
+    imRed = im[:, :, 0].astype(np.float32)
+    imGreen = im[:, :, 1].astype(np.float32)
+    # imGreen = cv2.add(imGreen, 1)
+    BG_red = imBG[:, :, 0].astype(np.float32)
+    BG_green = imBG[:, :, 1].astype(np.float32)
 
-    deltaRed = cv2.subtract(imRed, BG_red)
-    deltaGreen = cv2.subtract(imGreen, BG_green)
+    # imRed = cv2.divide(imRed, imBlue)
+    # imGreen = cv2.divide(np.float32(imGreen), np.float32(imBlue))
+    # BG_red = cv2.divide(np.float32(BG_red), np.float32(BG_blue))
+    # BG_green = cv2.divide(np.float32(BG_green), np.float32(BG_blue))
+
+
+
+    if text9.get(1.0, END) == '\n':             # \n is in the case of the empty string
+        text9.insert(INSERT,"1")
+    coef = int(text9.get(1.0, END))
+    print(coef)
+
+
+
+    imRed_adjusted = imadjust(imRed)
+    imGreen_adjusted = imadjust(imGreen)
+    BG_red_adjusted = imadjust(BG_red)
+    BG_green_adjusted = imadjust(BG_green)
+
+    deltaRed = np.abs(cv2.subtract(imRed, BG_red))
+    deltaGreen = np.abs(cv2.subtract(imGreen, BG_green))
+    deltaGreen = cv2.add(deltaGreen, 1)
 
     # deltaRed_norm = cv2.divide(deltaRed, BG_red_adjusted)
     # deltaGreen_norm = cv2.divide(deltaGreen, BG_green_adjusted)
     # deltaRed_norm_adjusted = imadjust(deltaRed_norm, np.min(deltaRed_norm), np.max(deltaRed_norm), 0, 255, 1)
     # deltaGreen_norm_adjusted = imadjust(deltaGreen_norm, np.min(deltaGreen_norm), np.max(deltaGreen_norm), 0, 255, 1)
     DIFFERENCE = cv2.subtract(deltaRed, deltaGreen)
-    Ratio = cv2.divide(deltaRed, deltaGreen)
+    Ratio = cv2.divide(np.float32(deltaRed), np.float32(deltaGreen))
+    # Ratio = deltaRed/deltaGreen
     # DIFFERENCE = cv2.subtract(deltaRed_norm_adjusted, deltaGreen_norm_adjusted)
     # Ratio = cv2.divide(deltaRed_norm_adjusted, deltaGreen_norm_adjusted)
 
-    BG_red_adj = imadjust(BG_red, np.min(BG_red), np.max(BG_red), 0, 255, 1)
-    BG_green_adj = imadjust(BG_green, np.min(BG_green), np.max(BG_green), 0, 255, 1)
-    DIFFERENCE_adjusted = imadjust(DIFFERENCE, np.min(DIFFERENCE), np.max(DIFFERENCE), 0, 255, 1)
-    Ratio_adjusted = imadjust(Ratio, np.min(Ratio), np.max(Ratio), 0, 255, 1)
-    deltaRed_adjusted = imadjust(deltaRed, np.min(deltaRed), np.max(deltaRed), 0, 255, 1)
-    deltaGreen_adjusted = imadjust(deltaGreen, np.min(deltaGreen), np.max(deltaGreen), 0, 255, 1)
-
+    BG_red_adj = imadjust(BG_red)
+    BG_green_adj = imadjust(BG_green)
+    DIFFERENCE_adjusted = imadjust(DIFFERENCE)
+    Ratio_adjusted = imadjust(Ratio)
+    print(np.min(deltaGreen))
+    print(np.max(Ratio))
+    deltaRed_adjusted = imadjust(deltaRed)
+    deltaGreen_adjusted = imadjust(deltaGreen)
 
 
     outputFilename = fileName[:-4] + "_output.png"
     outputFilename_demo = outputFilename[:-4] + "_demo.png"
+    outputFilename_borders = outputFilename[:-4] + "_borders.png"
 
     coordinate = int(text5.get(1.0, END))
 
@@ -548,6 +581,13 @@ def comparison():
             line_Ratio = Ratio[:, coordinate]
             line_DIFFERENCE_adjusted = DIFFERENCE_adjusted[:, coordinate]
             line_Ratio_adjusted = Ratio_adjusted[:, coordinate]
+            line_deltaRed_adjusted = deltaRed_adjusted[:, coordinate]
+
+            line_DIFFERENCE_adjusted = imadjust(DIFFERENCE[:, coordinate])
+            line_Ratio_adjusted = imadjust(Ratio[:, coordinate])
+            line_deltaRed_adjusted = imadjust(deltaRed[:, coordinate])
+            line_deltaGreen_adjusted = imadjust(deltaGreen[:, coordinate])
+
 
     elif Position_Type.get() == 0:  # Horizontal line
             line_deltaRed = deltaRed[coordinate, :]
@@ -556,42 +596,77 @@ def comparison():
             # line_deltaGreen_norm_adjusted = deltaGreen_norm_adjusted[coordinate, :]
             line_DIFFERENCE = DIFFERENCE[coordinate, :]
             line_Ratio = Ratio[coordinate, :]
+            line_Ratio_multiplied = cv2.multiply(line_Ratio, coef)
             line_DIFFERENCE_adjusted = DIFFERENCE_adjusted[coordinate, :]
             line_Ratio_adjusted = Ratio_adjusted[coordinate, :]
+            line_deltaRed_adjusted = deltaRed_adjusted[coordinate, :]
 
             DIFF_line_deltaRed = np.diff(line_deltaRed)
             DIFF_line_deltaGreen = np.diff(line_deltaGreen)
             DIFF_line_Ratio = np.diff(line_Ratio)
             DIFF_line_DIFFERENCE = np.diff(line_DIFFERENCE)
 
+            line_DIFFERENCE_adjusted = imadjust(DIFFERENCE[coordinate, :])
+            line_Ratio_adjusted = imadjust(Ratio[coordinate, :])
+            line_deltaRed_adjusted = imadjust(deltaRed[coordinate, :])
+            line_deltaGreen_adjusted = imadjust(deltaGreen[coordinate, :])
 
-    fig1 = plt.figure()
-    ax1 = fig1.add_subplot(3, 1, 1)
-    ax2 = fig1.add_subplot(3, 1, 2, sharex=ax1)
-    ax3 = fig1.add_subplot(3, 1, 3, sharex=ax1)
-    ax1.set(title='a)     Fluorescence image')
-    ax2.set(title='b)     Plots of modes', xlabel='Pixels', ylabel='Pixels Values', xlim=[0, len(line_deltaRed)])
-    ax3.set(title='c)     Plots of dI/dx', xlabel='Pixels', ylabel='dI/dx, [A. U.]', xlim=[0, len(line_deltaRed)])
-    ax2.plot(line_deltaRed, color='red', label='red')
-    ax2.plot(line_deltaGreen, color='green', label = 'green')
-    ax2.plot(line_Ratio, color='black', label='R/G')
-    ax2.plot(line_DIFFERENCE, color='blue', label='R-G')
-    ax3.plot(DIFF_line_deltaRed, color='red', label='red')
-    ax3.plot(DIFF_line_deltaGreen, color='green', label = 'green')
-    ax3.plot(DIFF_line_Ratio, color='black', label='R/G')
-    ax3.plot(DIFF_line_DIFFERENCE, color='blue', label='R-G')
+    # print(line_Ratio)
+    # print(line_DIFFERENCE)
+
+    fig0 = plt.figure(constrained_layout=True)
+    AX_0 = fig0.add_subplot(1, 1, 1)
+    # AX_0.set(title='a)     Fluorescence image')
+    AX_0.set(xlabel='Pixels', ylabel='Pixels Values', xlim=[0, len(line_deltaRed)])
+    AX_0.grid(which="both")
+    AX_0.minorticks_on()
+    AX_0.plot(line_deltaRed, color='red', label='red')
+    AX_0.plot(line_deltaGreen, color='green', label='green')
+    # plt.subplots(layout="constrained")
     plt.legend()
+    plt.savefig(outputFilename_borders)
+    plt.show()
+
+    fig1 = plt.figure(num=2,figsize=(4,2), constrained_layout=True)
+    gs = gridspec.GridSpec(2, 1, height_ratios=[1,1])
+    ax1 = fig1.add_subplot(2, 1, 1)
+    ax2 = fig1.add_subplot(2, 1, 2, sharex=ax1)
+
+    # ax3 = fig1.add_subplot(3, 1, 3, sharex=ax1)
+    # labelR2G = 'R/G*'+ str(coef)
+    labelR2G = 'R/G'
+    ax1.set(title='a)     Fluorescence image')
+    ax1.set(title='Fluorescence image')
+    ax2.set(title='b)     Plots of modes', xlabel='Pixels', ylabel='Pixels Values', xlim=[0, len(line_deltaRed)])
+    ax2.set(title='Plots of modes', xlabel='Pixels', ylabel='Pixels Values', xlim=[0, len(line_deltaRed)])
+    # ax3.set(title='c)     Plots of dI/dx', xlabel='Pixels', ylabel='dI/dx, [A. U.]', xlim=[0, len(line_deltaRed)])
+
+    ax2.plot(line_DIFFERENCE_adjusted, color='blue', label='R-G')
+    ax2.plot(line_Ratio_adjusted, color='orange', label=labelR2G)
+    ax2.plot(line_deltaRed_adjusted, color='red', label='red')
+    ax2.plot(line_deltaGreen_adjusted, color='green', label='green')
+
+    # ax3.plot(DIFF_line_deltaRed, color='red', label='red')
+    # ax3.plot(DIFF_line_deltaGreen, color='green', label = 'green')
+    # ax3.plot(DIFF_line_Ratio, color='black', label='R/G')
+    # ax3.plot(DIFF_line_DIFFERENCE, color='blue', label='R-G')
+    plt.legend()
+    ax2.grid(which="both")
+    ax2.minorticks_on()
 
     if Position_Type.get() == 1:  # Vertical line
         im[:, coordinate] = 255
     elif Position_Type.get() == 0:  # Horizontal line
         im[coordinate, :] = 255
 
+    # ax1.imshow(im, aspect="auto")
     ax1.imshow(im)
+    # plt.subplots(layout="constrained")
     plt.savefig(outputFilename_demo)
     plt.show()
 
-    fig2 = plt.figure()
+    fig2 = plt.figure(constrained_layout=True)
+    # fig2.tight_layout()
     ax_1 = fig2.add_subplot(2, 6, 1)
     ax_2 = fig2.add_subplot(2, 6, 2)
     ax_3 = fig2.add_subplot(2, 6, 3)
@@ -604,7 +679,7 @@ def comparison():
     ax_10 = fig2.add_subplot(2, 6, 10)
     ax_11 = fig2.add_subplot(2, 6, 11)
     ax_12 = fig2.add_subplot(2, 6, 12)
-    subplots_adjust(left=None, bottom=None, right=None, top=None, wspace=None, hspace=None)
+    # subplots_adjust(left=None, bottom=None, right=None, top=None, wspace=None, hspace=None)
 
     ax_1.set(title='a)     deltaR')
     ax_2.set(title='c)     deltaG')
@@ -621,11 +696,23 @@ def comparison():
 
 
     ax_7.plot(line_deltaRed)
+    ax_7.grid(which="both")
+    ax_7.minorticks_on()
     ax_8.plot(line_deltaGreen)
+    ax_8.grid(which="both")
+    ax_8.minorticks_on()
     ax_9.plot(line_Ratio)
+    ax_9.grid(which="both")
+    ax_9.minorticks_on()
     ax_10.plot(line_DIFFERENCE)
+    ax_10.grid(which="both")
+    ax_10.minorticks_on()
     ax_11.plot(line_Ratio_adjusted)
+    ax_11.grid(which="both")
+    ax_11.minorticks_on()
     ax_12.plot(line_DIFFERENCE_adjusted)
+    ax_12.grid(which="both")
+    ax_12.minorticks_on()
 
     if Position_Type.get() == 1:  # Vertical line
         deltaRed[:, coordinate] = 255
@@ -653,7 +740,10 @@ def comparison():
     ax_5.imshow(Ratio_adjusted, cmap='gray')
     ax_6.imshow(DIFFERENCE_adjusted, cmap='gray')
 
+
     plt.savefig(outputFilename)
+    # plt.grid(which='major')
+    # plt.grid(which='minor')
     plt.show()
 
     return
