@@ -13,6 +13,9 @@ import cv2
 
 from matplotlib import pyplot as plt, gridspec
 import numpy as np
+import csv
+import xlwt
+from xlsxwriter import Workbook
 from matplotlib.pyplot import subplots_adjust
 
 # from skimage.io import imread
@@ -541,6 +544,8 @@ def comparison():
     BG_red = imBG[:, :, 0].astype(np.float32)
     BG_green = imBG[:, :, 1].astype(np.float32)
 
+    IM_SUMM = imRed + imGreen + imBlue
+
     # imRed = cv2.divide(imRed, imBlue)
     # imGreen = cv2.divide(np.float32(imGreen), np.float32(imBlue))
     # BG_red = cv2.divide(np.float32(BG_red), np.float32(BG_blue))
@@ -581,6 +586,7 @@ def comparison():
     outputFilename = fileName[:-4] + "_output.png"
     outputFilename_demo = outputFilename[:-4] + "_demo.png"
     outputFilename_borders = outputFilename[:-4] + "_borders.png"
+    outputFilename_bordersCSV = outputFilename[:-4] + "_bordersCSV.csv"
 
     coordinate = int(text5.get(1.0, END))
 
@@ -643,6 +649,10 @@ def comparison():
     AX_0.plot(line_deltaGreen, color='green', label='green')
     # plt.subplots(layout="constrained")
     plt.legend()
+    with open(outputFilename_bordersCSV, 'w', newline='') as f:
+        writer = csv.writer(f, delimiter=',')
+        writer.writerows([line_deltaRed,line_deltaGreen])
+
     plt.savefig(outputFilename_borders)
     plt.show()
 
