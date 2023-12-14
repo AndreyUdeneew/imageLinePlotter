@@ -177,19 +177,24 @@ def im_adjust_BG_free_BW():
     imBG = cv2.cvtColor(imBG, cv2.COLOR_BGR2GRAY)
 
     deltaFrame = cv2.subtract(im, imBG)
-    imAdjusteded = imadjustAuto(deltaFrame, 0.5)
+    # imAdjusteded = imadjustAuto(im, 0.2)
+    imAdjusteded = imadjustAuto(deltaFrame, 1)
 
     # print(type(im))
-    fig, axes = plt.subplots(1, 2)
-
-    axes[0].imshow(deltaFrame,cmap='gray')
-    axes[0].set_title('deltaFrame')
+    fig, axes = plt.subplots(1, 3)
+    ax0im = axes[0].imshow(im)
+    axes[0].set_title('im')
+    # fig.colorbar(ax0im)
 
     # ax1im = axes[1].imshow(imadjustAuto(imAdjusteded), cmap='gray')
-    ax1im = axes[1].imshow(imAdjusteded, cmap='gray', vmin=0, vmax=255)
-    # axes[1].imshow(imAdjusteded)
-    axes[1].set_title('adjusted')
-    fig.colorbar(ax1im)
+
+    ax1im = axes[1].imshow(deltaFrame, vmin =deltaFrame.min() , vmax =deltaFrame.max() )
+    axes[1].set_title('deltaFrame')
+    # fig.colorbar(ax1im)
+
+    ax2im = axes[2].imshow(imAdjusteded)
+    axes[2].set_title('adjusted')
+    # fig.colorbar(ax2im)
 
 
     # plt.imshow(imAdjusteded)
