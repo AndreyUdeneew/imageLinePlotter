@@ -28,7 +28,7 @@ fileNameBase = ""
 fileNameBaseBG = ""
 
 
-def imadjustAuto(x):
+def imadjustAuto(x, gamma):
     # Similar to imadjust in MATLAB.
     # Converts an image range from [a,b] to [c,d].
     # The Equation of a line can be used for this transformation:
@@ -37,7 +37,6 @@ def imadjustAuto(x):
     #   y=((x-a)/(b-a))^gamma*(d-c)+c
     # If gamma is equal to 1, then the line equation is used.
     # When gamma is not equal to 1, then the transformation is not linear.
-    gamma = 1.0
     a = np.min(x)
     b = np.max(x)
     c = 0.0
@@ -143,7 +142,7 @@ def im_adjust():
     max = np.max(image)
     print (min)
     print(max)
-    imAdjusteded = imadjust(image, np.min(image), np.max(image), 0.0, 255.0, 1.0)
+    imAdjusteded = imadjustManual(image, np.min(image), np.max(image), 0.0, 255.0, 1.0)
     # imadjust(x, a, b, c = 0, d = 255, gamma=1)
     print(type(im))
     fig, axes = plt.subplots(1, 2)
@@ -157,6 +156,45 @@ def im_adjust():
     plt.imshow(imAdjusteded)
     plt.title('imAdjusted')
     plt.colorbar()
+    plt.show()
+    # fileName = fileName[:-3]
+    # plt.savefig(fileName + 'png')
+    # plt.show()
+    # outputFile = format(text3.get("1.0", 'end-1c'))
+    return
+
+def im_adjust_BG_free_BW():
+    # global fileName, fileNameBase, fileNameBaseBG, fileNameBG, imBase, im, imBG, BG_normalized, imBaseBG
+    text6.delete(1.0, END)
+
+    fileNameIm = format(text1.get("1.0", 'end-1c'))
+    fileNameBG = format(text2.get("1.0", 'end-1c'))
+
+    im = cv2.imread(fileNameIm)
+    imBG = cv2.imread(fileNameBG)
+
+    im = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
+    imBG = cv2.cvtColor(imBG, cv2.COLOR_BGR2GRAY)
+
+    deltaFrame = cv2.subtract(im, imBG)
+    imAdjusteded = imadjustAuto(deltaFrame, 0.5)
+
+    # print(type(im))
+    fig, axes = plt.subplots(1, 2)
+
+    axes[0].imshow(deltaFrame,cmap='gray')
+    axes[0].set_title('deltaFrame')
+
+    # ax1im = axes[1].imshow(imadjustAuto(imAdjusteded), cmap='gray')
+    ax1im = axes[1].imshow(imAdjusteded, cmap='gray', vmin=0, vmax=255)
+    # axes[1].imshow(imAdjusteded)
+    axes[1].set_title('adjusted')
+    fig.colorbar(ax1im)
+
+
+    # plt.imshow(imAdjusteded)
+    # plt.title('imAdjusted')
+    # plt.colorbar()
     plt.show()
     # fileName = fileName[:-3]
     # plt.savefig(fileName + 'png')
@@ -486,7 +524,7 @@ def R_G():
     max = np.max(DIFFERENCE)
     print(min)
     print(max)
-    DIFFERENCE_adjusted = imadjust(DIFFERENCE, np.min(DIFFERENCE), np.max(DIFFERENCE), 0, 255, 1)
+    DIFFERENCE_adjusted = imadjustAuto(DIFFERENCE, np.min(DIFFERENCE), np.max(DIFFERENCE), 0, 255, 1)
 
     outputFilename = fileName[:-3] + "_output.png"
     coordinate = int(text5.get(1.0, END))
@@ -781,7 +819,7 @@ def comparison():
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     window = Tk()
-    window.geometry('1350x250')
+    window.geometry('1470x250')
     window.title("imageLinePlotter")
 
     # lbl0 = Label(window, text="Выбор директории выходного файла")
@@ -845,6 +883,8 @@ if __name__ == '__main__':
     btn14.grid(column=2, row=8, sticky=W)
     btn15 = Button(window, text="multiply", command=im_multiply)
     btn15.grid(column=5, row=2, sticky=W)
+    btn16 = Button(window, text="imadjust_BG_free_BW", command=im_adjust_BG_free_BW)
+    btn16.grid(column=3, row=8, sticky=W)
 
     Position_Type = BooleanVar()
     rb0 = Radiobutton(text="Y_line", variable=Position_Type, value=0)
